@@ -1,0 +1,15 @@
+{
+    "autoload": {
+        "psr-0": {
+            "Losofacebook": "src/"
+        }
+    },
+
+    "require": {
+        "doctrine/dbal": "2.3.*",
+        "silex/silex": "1.0.*@dev",
+        "knplabs/console-service-provider": "dev-master@dev"
+    },
+    "minimum-stability": "stable"
+
+}

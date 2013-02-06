@@ -1,0 +1,17 @@
+#!/usr/bin/env php
+<?php
+
+use Knp\Console\ConsoleEvents;
+use Knp\Console\ConsoleEvent;
+
+use Losofacebook\Command\CreateRandomUsersCommand;
+
+$app = require_once __DIR__.'/bootstrap.php';
+
+$app['dispatcher']->addListener(ConsoleEvents::INIT, function(ConsoleEvent $event) {
+    $app = $event->getApplication();
+    $app->add(new CreateRandomUsersCommand());
+});
+
+$application = $app['console'];
+$application->run();
