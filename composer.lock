@@ -1,5 +1,5 @@
 {
-    "hash": "c7dca5771d41fb861615fc0a69d5c239",
+    "hash": "3507e48f444df8439dbf987846a1bc4f",
     "packages": [
         {
             "name": "doctrine/common",
@@ -132,6 +132,31 @@
                 "persistence",
                 "queryobject"
             ]
+        },
+        {
+            "name": "keboola/csv",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/php-csv",
+                "reference": "1.0.9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/php-csv/zipball/1.0.9",
+                "reference": "1.0.9",
+                "shasum": ""
+            },
+            "time": "2012-11-21 10:29:07",
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Keboola\\Csv": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "description": "Keboola CSV reader and writer",
+            "homepage": "http://keboola.com"
         },
         {
             "name": "knplabs/console-service-provider",
@@ -393,6 +418,48 @@
             "homepage": "http://symfony.com"
         },
         {
+            "name": "symfony/finder",
+            "version": "v2.1.7",
+            "target-dir": "Symfony/Component/Finder",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Finder",
+                "reference": "v2.1.7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://github.com/symfony/Finder/archive/v2.1.7.zip",
+                "reference": "v2.1.7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "time": "2013-01-09 08:51:07",
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Finder": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Finder Component",
+            "homepage": "http://symfony.com"
+        },
+        {
             "name": "symfony/http-foundation",
             "version": "v2.1.7",
             "target-dir": "Symfony/Component/HttpFoundation",
@@ -558,6 +625,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "silex/silex": 20,
-        "knplabs/console-service-provider": 20
+        "knplabs/console-service-provider": 20,
+        "keboola/csv": 20
     }
 }

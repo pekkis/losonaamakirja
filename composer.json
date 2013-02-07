@@ -8,7 +8,9 @@
     "require": {
         "doctrine/dbal": "2.3.*",
         "silex/silex": "1.0.*@dev",
-        "knplabs/console-service-provider": "dev-master@dev"
+        "knplabs/console-service-provider": "dev-master@dev",
+        "keboola/csv": "dev-master",
+        "symfony/finder": "2.1.*",
     },
     "minimum-stability": "stable"
 
