@@ -1,0 +1,16 @@
+#main {
+    margin-top: 4%;
+}
+
+.brand {
+    font-weight: bold !important;
+}
+
+.navbar-inverse .navbar-inner {
+    background-image: url('../img/background.png');
+    background-repeat: repeat;
+
+    color: white;
+}
+
+.navbar-inverse .navbar-inner a { color: white !important; }

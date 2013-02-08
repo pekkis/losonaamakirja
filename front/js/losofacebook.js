@@ -7,6 +7,6 @@ angular.module('losofacebook', [])
                 controller: function($scope, $location, $routeParams) {
                     // ljussutusta.
                 },
-                templateUrl: 'templates/front.html'
+                templateUrl: 'views/front.html'
             });
     });
