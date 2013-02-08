@@ -30,3 +30,8 @@ latitude decimal(9,6) NULL,
 longitude decimal(9,6) NULL,
 PRIMARY KEY(id)
 ) engine=InnoDB DEFAULT CHARSET=utf8;
+
+
+ALTER TABLE person CHANGE birthday birthday date NULL;
+
+ALTER TABLE person CHANGE email email varchar(255) NULL;
