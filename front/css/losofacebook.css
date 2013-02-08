@@ -1,8 +1,12 @@
+body * {
+    zoom: 1;
+}
+
 #main {
     margin-top: 4%;
 }
 
-.brand {
+body .navbar .container #losofacebook-logo.brand span#losonaamakirja {
     font-weight: bold !important;
 }
 
@@ -14,3 +18,4 @@
 }
 
 .navbar-inverse .navbar-inner a { color: white !important; }
+

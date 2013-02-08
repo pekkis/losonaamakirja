@@ -3,15 +3,10 @@
 <head>
     <meta charset="utf-8">
     <title>Losonaamakirja</title>
-    <link rel="stylesheet" href="css/bootstrap.css"/>
-    <link rel="stylesheet" href="css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="css/bootstrap-responsive.css"/>
-    <link rel="stylesheet" href="css/losofacebook.css"/>
 
     <script src="lib/angular/angular.js"></script>
     <script src="js/jquery-1.9.1.js"></script>
     <script src="js/losofacebook.js"></script>
-    <script src="js/bootstrap.js"></script>
     <script src="js/bootstrap-affix.js"></script>
     <script src="js/bootstrap-alert.js"></script>
     <script src="js/bootstrap-button.js"></script>
@@ -19,12 +14,12 @@
     <script src="js/bootstrap-collapse.js"></script>
     <script src="js/bootstrap-dropdown.js"></script>
     <script src="js/bootstrap-modal.js"></script>
-    <script src="js/bootstrap-popover.js"></script>
     <script src="js/bootstrap-scrollspy.js"></script>
     <script src="js/bootstrap-tab.js"></script>
     <script src="js/bootstrap-tooltip.js"></script>
     <script src="js/bootstrap-transition.js"></script>
     <script src="js/bootstrap-typeahead.js"></script>
+    <script src="js/jquery-ui-1.10.0.custom.js"></script>
 </head>
 <body>
     <div class="navbar navbar-fixed-top navbar-inverse">
@@ -36,7 +31,7 @@
                     <span class="icon-bar"></span>
                 </button>
 
-                <a class="brand" href="#/">Losonaamakirja</a>
+                <a id="losofacebook-logo" class="brand" href="#/"><span id="losonaamakirja">losonaamakirja</span></a>
 
                 <div class="nav-collapse collapse">
                     <ul class="nav">
@@ -50,7 +45,7 @@
 
                     <ul class="nav pull-right">
                         <li>
-                            <a href="#/"><img src="img/icon-lock.png" alt="Log out" style="width: 30px; margin-top: -15px; margin-bottom: -15px; "></a>
+                            <a href="#/"><img src="img/icon-lock.png" alt="Log out" style="width: 30px; margin-top: -15px; margin-bottom: -15px;"></a>
                         </li>
                     </ul>
                 </div>
@@ -61,5 +56,10 @@
     <div id="main" class="container">
         <div ng-view></div>
     </div>
+
+    <link rel="stylesheet" href="css/bootstrap.css"/>
+    <link rel="stylesheet" href="css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="css/bootstrap-responsive.css"/>
+    <link rel="stylesheet" href="css/losofacebook.css"/>
 </body>
 </html>
