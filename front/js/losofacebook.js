@@ -8,5 +8,11 @@ angular.module('losofacebook', [])
                     // ljussutusta.
                 },
                 templateUrl: 'views/front.html'
+            })
+            .when('/profile', {
+                controller: function($scope, $location, $routeParams) {
+                    // ljussutusta.
+                },
+                templateUrl: 'views/profile.html'
             });
     });
