@@ -33,5 +33,14 @@ PRIMARY KEY(id)
 
 
 ALTER TABLE person CHANGE birthday birthday date NULL;
-
 ALTER TABLE person CHANGE email email varchar(255) NULL;
+
+CREATE TABLE image
+(
+id integer unsigned NOT NULL AUTO_INCREMENT
+PRIMARY KEY(id)
+) engine=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE person ADD COLUMN primary_image_id integer unsigned NULL;
+ALTER TABLE person ADD COLUMN background_id tinyint NULL;
+
