@@ -17,7 +17,7 @@ class CreateRandomUsersCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('initialize:create-random-losofaces')
+            ->setName('dev:create-random-losofaces')
             ->setDescription('Creates loads of random losofaces');
     }
 
@@ -30,7 +30,7 @@ class CreateRandomUsersCommand extends Command
         $finder
             ->name('*.bz2')
             ->files()
-            ->in($this->getProjectDirectory() . '/app/data/fake-names');
+            ->in($this->getProjectDirectory() . '/app/dev/fake-names');
 
         foreach ($finder as $file) {
 
@@ -50,7 +50,7 @@ class CreateRandomUsersCommand extends Command
         $finder
             ->name('*.csv')
             ->files()
-            ->in($this->getProjectDirectory() . '/app/data/fake-names');
+            ->in($this->getProjectDirectory() . '/app/dev/fake-names');
 
         $db = $this->getDb();
 

@@ -37,10 +37,18 @@ ALTER TABLE person CHANGE email email varchar(255) NULL;
 
 CREATE TABLE image
 (
-id integer unsigned NOT NULL AUTO_INCREMENT
+id integer unsigned NOT NULL AUTO_INCREMENT,
 PRIMARY KEY(id)
 ) engine=InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE person ADD COLUMN primary_image_id integer unsigned NULL;
 ALTER TABLE person ADD COLUMN background_id tinyint NULL;
 
+CREATE TABLE friendship
+(
+source_id integer unsigned,
+target_id integer unsigned,
+FOREIGN KEY(source_id) REFERENCES person(id),
+FOREIGN KEY(target_id) REFERENCES person(id),
+PRIMARY KEY(source_id, target_id)
+) engine=InnoDB DEFAULT CHARSET=utf8;

@@ -1,0 +1,35 @@
+<div class="row">
+    <div class="span12">
+        <img ng-src="http://place.manatee.lc/{{ person.backgroundId }}/2000/500.jpg" />
+
+        <div class="row">
+            <div class="span2">
+                <img ng-src="/api/image/{{ person.primaryImageId }}/thumb" id="profile-image" />
+            </div>
+
+            <div class="span10">
+                <h1>{{ person.firstName }} {{ person.lastName }} </h1>
+
+                <div class="row">
+                    <div class="span10">
+                        Interim lusshoffer at Dr. Kobros
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span12">
+
+        <ul class="friends">
+            <li ng-repeat="friend in person.friends | orderBy:['lastName', 'firstName']">
+                <img class="friend-image" ng-src="/api/image/{{ friend.primaryImageId }}/thumb">
+                {{ friend.firstName }} {{ friend.lastName }}
+            </li>
+        </ul>
+
+
+    </div>
+</div>

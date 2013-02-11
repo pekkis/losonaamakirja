@@ -5,12 +5,18 @@ use Knp\Console\ConsoleEvents;
 use Knp\Console\ConsoleEvent;
 
 use Losofacebook\Command\CreateRandomUsersCommand;
+use Losofacebook\Command\CreateImagesCommand;
+use Losofacebook\Command\AssociateImagesCommand;
+use Losofacebook\Command\CreateFriendshipCommand;
 
 $app = require_once __DIR__.'/bootstrap.php';
 
 $app['dispatcher']->addListener(ConsoleEvents::INIT, function(ConsoleEvent $event) {
     $app = $event->getApplication();
     $app->add(new CreateRandomUsersCommand());
+    $app->add(new CreateImagesCommand());
+    $app->add(new AssociateImagesCommand());
+    $app->add(new CreateFriendshipCommand());
 });
 
 $application = $app['console'];
