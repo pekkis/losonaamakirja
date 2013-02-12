@@ -7,6 +7,7 @@ use Silex\Provider\DoctrineServiceProvider;
 use Silex\Application;
 use Losofacebook\Service\ImageService;
 use Losofacebook\Service\PersonService;
+use Losofacebook\Service\PostService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,6 +22,10 @@ $app['imageService'] = $app->share(function (Application $app) {
 
 $app['personService'] = $app->share(function (Application $app) {
     return new PersonService($app['db']);
+});
+
+$app['postService'] = $app->share(function (Application $app) {
+    return new PostService($app['db']);
 });
 
 // Providers
@@ -57,6 +62,20 @@ $app->get('/api/person/{username}', function(Application $app, $username) {
     );
 
 });
+
+$app->get('/api/post/{personId}', function(Application $app, $personId) {
+
+    /** @var PostService $postService */
+    $postService = $app['postService'];
+
+    $posts = $postService->findByPersonId($personId);
+
+    return new JsonResponse(
+        $posts
+    );
+
+});
+
 
 $app->get('/api/image/{id}/{version}', function(Application $app, $id, $version = null) {
 

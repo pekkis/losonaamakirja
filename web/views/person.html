@@ -12,7 +12,7 @@
 
                 <div class="row">
                     <div class="span10">
-                        Interim lusshoffer at Dr. Kobros
+                        {{ person.occupation }} at {{ person.company }}
                     </div>
                 </div>
             </div>
@@ -21,15 +21,25 @@
 </div>
 
 <div class="row">
-    <div class="span12">
 
-        <ul class="friends">
-            <li ng-repeat="friend in person.friends | orderBy:['lastName', 'firstName']">
-                <img class="friend-image" ng-src="/api/image/{{ friend.primaryImageId }}/thumb">
-                {{ friend.firstName }} {{ friend.lastName }}
+    <div class="span8">
+
+        <h2>Wall</h2>
+
+
+        <ul>
+            <li ng-repeat="post in posts" ng-bind-html="post.content">
             </li>
+
         </ul>
 
 
+
     </div>
+
+    <div class="span4">
+        <h2>Friends</h2>
+        <lb-friends person="person"></lb-friends>
+    </div>
+
 </div>

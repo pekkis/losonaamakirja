@@ -2,29 +2,38 @@
 <html lang="en" ng-app="losofacebook">
 <head>
     <meta charset="utf-8">
-    <title>Losonaamakirja</title>
 
-    <script src="lib/angular/angular.js"></script>
-    <script src="lib/angular/angular-resource.js"></script>
-    <script src="js/jquery-1.9.1.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/services.js"></script>
-    <script src="js/controllers.js"></script>
-    <script src="js/filters.js"></script>
-    <script src="js/directives.js"></script>
-    <script src="js/bootstrap-affix.js"></script>
-    <script src="js/bootstrap-alert.js"></script>
-    <script src="js/bootstrap-button.js"></script>
-    <script src="js/bootstrap-carousel.js"></script>
-    <script src="js/bootstrap-collapse.js"></script>
-    <script src="js/bootstrap-dropdown.js"></script>
-    <script src="js/bootstrap-modal.js"></script>
-    <script src="js/bootstrap-scrollspy.js"></script>
-    <script src="js/bootstrap-tab.js"></script>
-    <script src="js/bootstrap-tooltip.js"></script>
-    <script src="js/bootstrap-transition.js"></script>
-    <script src="js/bootstrap-typeahead.js"></script>
-    <script src="js/jquery-ui-1.10.0.custom.js"></script>
+    <title ng-bind-template="{{pageTitle}} - Losofacebook"></title>
+
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap-responsive.css"/>
+    <link rel="stylesheet/less" type="text/css" href="/css/losofacebook-main.less" />
+
+
+    <script src="/lib/angular/angular.js"></script>
+    <script src="/lib/angular/angular-resource.js"></script>
+    <script src="/lib/angular/angular-sanitize.js"></script>
+    <script src="/js/less.min.js"></script>
+    <script src="/js/jquery-1.9.1.js"></script>
+    <script src="/js/app.js"></script>
+    <script src="/js/services.js"></script>
+    <script src="/js/controllers.js"></script>
+    <script src="/js/filters.js"></script>
+    <script src="/js/directives.js"></script>
+    <script src="/js/bootstrap-affix.js"></script>
+    <script src="/js/bootstrap-alert.js"></script>
+    <script src="/js/bootstrap-button.js"></script>
+    <script src="/js/bootstrap-carousel.js"></script>
+    <script src="/js/bootstrap-collapse.js"></script>
+    <script src="/js/bootstrap-dropdown.js"></script>
+    <script src="/js/bootstrap-modal.js"></script>
+    <script src="/js/bootstrap-scrollspy.js"></script>
+    <script src="/js/bootstrap-tab.js"></script>
+    <script src="/js/bootstrap-tooltip.js"></script>
+    <script src="/js/bootstrap-transition.js"></script>
+    <script src="/js/bootstrap-typeahead.js"></script>
+    <script src="/js/jquery-ui-1.10.0.custom.js"></script>
 </head>
 <body>
     <div class="navbar navbar-fixed-top navbar-inverse">
@@ -41,16 +50,16 @@
                 <div class="nav-collapse collapse">
                     <ul class="nav">
                         <li>
-                            <a href="#/"><img src="img/icon-home.png" alt="Home" style="width: 20px;"></a>
+                            <a href="/"><img src="/img/icon-home.png" alt="Home" style="width: 20px;"></a>
                         </li>
                         <li>
-                            <a href="#/profile"><img src="img/icon-user.png" alt="Home" style="width: 20px;"></a>
+                            <a href="#/profile"><img src="/img/icon-user.png" alt="Home" style="width: 20px;"></a>
                         </li>
                     </ul>
 
                     <ul class="nav pull-right">
                         <li>
-                            <a href="#/"><img src="img/icon-lock.png" alt="Log out" style="width: 30px; margin-top: -15px; margin-bottom: -15px;"></a>
+                            <a href="#/"><img src="/img/icon-lock.png" alt="Log out" style="width: 30px; margin-top: -15px; margin-bottom: -15px;"></a>
                         </li>
                     </ul>
                 </div>
@@ -61,60 +70,6 @@
     <div id="main" class="container">
         <div ng-view></div>
     </div>
-
-    <link rel="stylesheet" href="css/bootstrap.css"/>
-    <link rel="stylesheet" href="css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="css/bootstrap-responsive.css"/>
-
-    <style type="text/css">
-        body * {
-            zoom: 1;
-        }
-
-        iframe {
-            width: 100%;
-            border: 0;
-            background-color: #ddd;
-        }
-
-        #main {
-            margin-top: 4%;
-        }
-
-        body .navbar .container #losofacebook-logo.brand span#losonaamakirja {
-            font-weight: bold !important;
-        }
-
-        .navbar-inverse .navbar-inner {
-            background-image: url('../img/background.png');
-            background-repeat: repeat;
-
-            color: white;
-        }
-
-        .navbar-inverse .navbar-inner a {
-            color: white !important;
-        }
-
-        #advertisements {
-            opacity: 0.9;
-        }
-
-        #profile-image {
-            position: relative;
-            top: -50px;
-            left: 10px;
-            z-index: 1;
-            width: 90%;
-            border: 4px solid white;
-        }
-
-        .friend-image {
-            width: 50px;
-            height: 50px;
-        }
-
-    </style>
 
 </body>
 </html>

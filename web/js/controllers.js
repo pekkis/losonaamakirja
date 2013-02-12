@@ -15,12 +15,13 @@ function IndexCtrl($scope, $routeParams, $location) {
     */
 }
 
-function PersonCtrl($scope, $routeParams, Person) {
+function PersonCtrl($scope, $routeParams, Person, Post) {
+
+    $scope.posts = [];
 
     $scope.person = Person.get({username: $routeParams.username}, function(person) {
 
+        $scope.posts = Post.query({ 'person': person.id });
+
     });
-    // $scope.recommendation = $routeParams.recommendation;
-
-
 }

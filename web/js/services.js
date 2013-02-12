@@ -10,4 +10,10 @@ angular.module('losofacebook.services', ['ngResource'])
         return $resource('/api/person/:username', {}, {
             query: { method: 'GET', params: {}, isArray: false }
         });
+    })
+    .factory('Post', function($resource){
+        return $resource('/api/post/:person', {}, {
+            query: { method: 'GET', params: {}, isArray: true }
+        });
     });
+

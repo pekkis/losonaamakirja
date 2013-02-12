@@ -23,3 +23,26 @@ angular.module('losofacebook.directives', []).directive('onEnter', function() {
         });
     };
 });
+
+angular.module('losofacebook.directives', []).directive('lbFriends', function factory() {
+
+    var directiveDefinitionObject = {
+
+        restrict: 'E',
+        templateUrl: '/views/directives/friends.html',
+        replace: true,
+
+        scope: {
+            'person': '=person'
+        },
+
+        link: function postLink(scope, element, attrs) {
+
+            console.debug(attrs);
+
+        }
+    };
+
+    return directiveDefinitionObject;
+
+});

@@ -3,11 +3,12 @@
 namespace Losofacebook\Service;
 use Doctrine\DBAL\Connection;
 use Losofacebook\Person;
+use Losofacebook\Post;
 
 /**
  * Image service
  */
-class PersonService
+class PostService
 {
     /**
      * @var Connection
@@ -23,28 +24,23 @@ class PersonService
     }
 
     /**
-     * Uploads image
+     * Finds by person id
      *
      * @param $path
      */
-    public function findByUsername($username, $findFriends = true)
+    public function findByPersonId($personId)
     {
-
-        $data = $this->conn->fetchAssoc(
-            "SELECT * FROM person WHERE username = ?", [$username]
+        $data = $this->conn->fetchAll(
+            "SELECT * FROM post WHERE person_id = ? ORDER BY date_created DESC", [$personId]
         );
 
-        if (!$data) {
-            return false;
+        $posts = [];
+        foreach ($data as $row) {
+            $post = Post::create($row);
+            $posts[] = $post;
         }
 
-        $person = Person::create($data);
-
-        if ($findFriends) {
-            $person->setFriends($this->findFriends($person->getId()));
-        }
-
-        return $person;
+        return $posts;
     }
 
     public function findById($id, $findFriends = true)

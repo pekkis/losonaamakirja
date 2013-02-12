@@ -1,36 +1,14 @@
 <?php
 
 namespace Losofacebook;
-use JsonSerializable;
 
-class Person implements JsonSerializable
+class Person extends Entity
 {
-    /**
-     * @var array
-     */
-    private $data;
 
     /**
      * @var array
      */
     private $friends = [];
-
-    /**
-     * @param array $data
-     */
-    private function __construct($data = [])
-    {
-        $this->data = $data;
-    }
-
-    /**
-     * @param array $data
-     * @return Person
-     */
-    public static function create(array $data = [])
-    {
-        return new self($data);
-    }
 
     /**
      * @return array|mixed
@@ -43,6 +21,10 @@ class Person implements JsonSerializable
             'primaryImageId' => $this->getPrimaryImageId(),
             'backgroundId' => $this->getBackgroundId(),
             'friends' => $this->getFriends(),
+            'company' => $this->getCompany(),
+            'occupation' => $this->getOccupation(),
+            'username' => $this->getUsername(),
+            'id' => $this->getId(),
         ];
     }
 
@@ -86,7 +68,6 @@ class Person implements JsonSerializable
         return $this->data['background_id'];
     }
 
-
     /**
      * @return array
      */
@@ -101,6 +82,27 @@ class Person implements JsonSerializable
     public function setFriends(array $friends)
     {
         $this->friends = $friends;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCompany()
+    {
+        return $this->data['company'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getOccupation()
+    {
+        return $this->data['occupation'];
+    }
+
+    public function getUsername()
+    {
+        return $this->data['username'];
     }
 
 }

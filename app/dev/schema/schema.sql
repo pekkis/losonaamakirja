@@ -52,3 +52,29 @@ FOREIGN KEY(source_id) REFERENCES person(id),
 FOREIGN KEY(target_id) REFERENCES person(id),
 PRIMARY KEY(source_id, target_id)
 ) engine=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE post
+(
+id integer unsigned NOT NULL AUTO_INCREMENT,
+person_id integer unsigned NOT NULL,
+poster_id integer unsigned NOT NULL,
+date_created datetime NOT NULL,
+content text NOT NULL,
+PRIMARY KEY(id),
+FOREIGN KEY(person_id) REFERENCES person(id) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY(poster_id) REFERENCES person(id) ON DELETE CASCADE ON UPDATE CASCADE
+) engine=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE comment
+(
+id integer unsigned NOT NULL AUTO_INCREMENT,
+post_id integer unsigned NOT NULL,
+poster_id integer unsigned NOT NULL,
+date_created datetime NOT NULL,
+content text NOT NULL,
+PRIMARY KEY(id),
+FOREIGN KEY(post_id) REFERENCES post(id) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY(poster_id) REFERENCES person(id) ON DELETE CASCADE ON UPDATE CASCADE
+) engine=InnoDB DEFAULT CHARSET=utf8;
+
+
