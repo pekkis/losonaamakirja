@@ -1,10 +1,10 @@
 <div class="row">
     <div class="span12">
-        <img ng-src="http://place.manatee.lc/{{ person.backgroundId }}/2000/500.jpg" />
+        <img ng-src="{{ backgroundImage }}" />
 
         <div class="row">
             <div class="span2">
-                <img ng-src="/api/image/{{ person.primaryImageId }}/thumb" id="profile-image" />
+                <img ng-src="{{ profileImage }}" id="profile-image" />
             </div>
 
             <div class="span10">
@@ -22,24 +22,21 @@
 
 <div class="row">
 
-    <div class="span8">
+    <div id="wall" class="span8">
 
         <h2>Wall</h2>
 
-
-        <ul>
-            <li ng-repeat="post in posts" ng-bind-html="post.content">
-            </li>
-
-        </ul>
-
+        <lb-wall person="person"></lb-wall>
 
 
     </div>
 
     <div class="span4">
+
+        <div class="well">
         <h2>Friends</h2>
         <lb-friends person="person"></lb-friends>
+        </div>
     </div>
 
 </div>

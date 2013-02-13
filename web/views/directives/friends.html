@@ -1,6 +1,10 @@
-<ul class="friends">
-    <li ng-repeat="friend in person.friends | orderBy:['lastName', 'firstName']">
-        <img class="friend-image" ng-src="/api/image/{{ friend.primaryImageId }}/thumb">
-        <a ng-href="/person/{{ friend.username }}">{{ friend.firstName }} {{ friend.lastName }}</a>
-    </li>
-</ul>
+<div class="friends">
+
+    <ul>
+        <li ng-repeat="friend in person.friends | orderBy:['lastName', 'firstName']">
+            <img class="friend-image" ng-src="/api/image/{{ friend.primaryImageId }}/thumb">
+            <a ng-href="/person/{{ friend.username }}">{{ friend.firstName }} {{ friend.lastName }}</a>
+        </li>
+    </ul>
+
+</div>

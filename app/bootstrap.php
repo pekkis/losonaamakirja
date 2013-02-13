@@ -11,21 +11,15 @@ use Losofacebook\Service\PostService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\HttpKernel\Event\KernelEvent;
+use Silex\Provider\SessionServiceProvider;
 
 $app = new Silex\Application();
 
-// Services
-
-$app['imageService'] = $app->share(function (Application $app) {
-    return new ImageService($app['db'], realpath(__DIR__ . '/data/images'));
-});
-
-$app['personService'] = $app->share(function (Application $app) {
-    return new PersonService($app['db']);
-});
-
-$app['postService'] = $app->share(function (Application $app) {
-    return new PostService($app['db']);
+// Simulated login
+$app['dispatcher']->addListener(KernelEvents::REQUEST, function (KernelEvent $event) use ($app) {
+    $app['session']->set('user', array('username' => 'gaylord.lohiposki'));
 });
 
 // Providers
@@ -47,6 +41,31 @@ $app->register(new DoctrineServiceProvider(), array(
         'charset' => 'utf8',
     ),
 ));
+
+$app->register(
+    new SessionServiceProvider(),
+    [
+        'session.storage.save_path' => __DIR__ . '/data/sessions',
+        'session.storage.options' => [
+            'name' => 'losofacebook',
+        ]
+    ]
+);
+
+// Services
+
+$app['imageService'] = $app->share(function (Application $app) {
+    return new ImageService($app['db'], realpath(__DIR__ . '/data/images'));
+});
+
+$app['personService'] = $app->share(function (Application $app) {
+    return new PersonService($app['db']);
+});
+
+$app['postService'] = $app->share(function (Application $app) {
+    return new PostService($app['db'], $app['personService']);
+});
+
 
 // Controllers
 
@@ -75,6 +94,21 @@ $app->get('/api/post/{personId}', function(Application $app, $personId) {
     );
 
 });
+
+
+$app->post('/api/post/{personId}', function(Application $app, Request $request, $personId) {
+
+    /** @var PostService $postService */
+    $postService = $app['postService'];
+
+    $data = json_decode($request->getContent());
+    $post = $postService->create($personId, $data);
+    return new JsonResponse(
+        $post
+    );
+
+});
+
 
 
 $app->get('/api/image/{id}/{version}', function(Application $app, $id, $version = null) {

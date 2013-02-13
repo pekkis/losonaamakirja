@@ -2,8 +2,10 @@
 
 namespace Losofacebook\Service;
 use Doctrine\DBAL\Connection;
-use Losofacebook\Person;
 use Losofacebook\Post;
+use Losofacebook\Comment;
+use Losofacebook\Service\PersonService;
+use DateTime;
 
 /**
  * Image service
@@ -16,12 +18,37 @@ class PostService
     private $conn;
 
     /**
+     * @var PersonService
+     */
+    private $personService;
+
+    /**
      * @param $basePath
      */
-    public function __construct(Connection $conn)
+    public function __construct(Connection $conn, PersonService $personService)
     {
         $this->conn = $conn;
+        $this->personService = $personService;
     }
+
+
+    public function create($personId, $data)
+    {
+        $data = [
+            'person_id' => $personId,
+            'poster_id' => $data->poster->id,
+            'date_created' => (new DateTime())->format('Y-m-d H:i:s'),
+            'content' => $data->content,
+        ];
+
+        $this->conn->insert('post', $data);
+        $data['id'] = $this->conn->lastInsertId();
+
+        $post = Post::create($data);
+        $post->setPerson($this->personService->findById($data['poster_id'], false));
+        return $post;
+    }
+
 
     /**
      * Finds by person id
@@ -36,32 +63,17 @@ class PostService
 
         $posts = [];
         foreach ($data as $row) {
+
+
             $post = Post::create($row);
+            $post->setPerson($this->personService->findById($row['poster_id'], false));
+            $post->setComments($this->getComments($row['id']));
+
             $posts[] = $post;
         }
 
         return $posts;
     }
-
-    public function findById($id, $findFriends = true)
-    {
-        $data = $this->conn->fetchAssoc(
-            "SELECT * FROM person WHERE id = ?", [$id]
-        );
-
-        if (!$data) {
-            return false;
-        }
-
-        $person = Person::create($data);
-
-        if ($findFriends) {
-            $person->setFriends($this->findFriends($person->getId()));
-        }
-
-        return $person;
-    }
-
 
     public function findFriends($id)
     {
@@ -98,16 +110,19 @@ class PostService
         return array_unique(array_merge($myAdded, $meAdded));
     }
 
-    public function addFriend($friendId)
+
+    public function getComments($postId)
     {
+        $data = $this->conn->fetchAll(
+            "SELECT * FROM comment WHERE post_id = ? ORDER BY date_created DESC", [$postId]
+        );
 
+        $comments = [];
+        foreach ($data as $row) {
+            $comment = Comment::create($row);
+            $comment->setPerson($this->personService->findById($row['poster_id'], false));
+            $comments[] = $comment;
+        }
+        return $comments;
     }
-
-    public function removeFriend($friendId)
-    {
-
-    }
-
-
-
 }

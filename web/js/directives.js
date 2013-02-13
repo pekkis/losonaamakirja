@@ -24,25 +24,78 @@ angular.module('losofacebook.directives', []).directive('onEnter', function() {
     };
 });
 
-angular.module('losofacebook.directives', []).directive('lbFriends', function factory() {
+angular.module('losofacebook.directives', [])
+    .directive('lbFriends', function factory() {
 
-    var directiveDefinitionObject = {
+        var directiveDefinitionObject = {
 
-        restrict: 'E',
-        templateUrl: '/views/directives/friends.html',
-        replace: true,
+            restrict: 'E',
+            templateUrl: '/views/directives/friends.html',
+            replace: true,
 
-        scope: {
-            'person': '=person'
-        },
+            scope: {
+                'person': '=person'
+            },
 
-        link: function postLink(scope, element, attrs) {
+            link: function postLink(scope, element, attrs) {
 
-            console.debug(attrs);
+                console.debug(attrs);
 
-        }
-    };
+            }
+        };
 
-    return directiveDefinitionObject;
+        return directiveDefinitionObject;
+    })
+    .directive('lbWall', function factory(Post, currentUser) {
 
-});
+        var directiveDefinitionObject = {
+
+            restrict: 'E',
+            templateUrl: '/views/directives/posts.html',
+            replace: true,
+
+            scope: {
+                'person': '=person'
+            },
+
+            link: function (scope, element, attrs) {
+
+                scope.doPost = function(person, post) {
+
+                    var post = new Post({
+                        'personId': person.id,
+                        'content': post,
+                        'poster': currentUser,
+                        'comments': []
+                    });
+                    post.$save();
+
+                    scope.posts.unshift(post);
+
+
+                };
+
+                scope.postComment = function(post, comment) {
+                    post.comments.push({
+                        'content': comment,
+                        'person': currentUser
+                    });
+
+                    this.comment = '';
+                }
+
+                scope.$watch('person', function(person) {
+                    if (person.id) {
+                        scope.posts = Post.query({ 'person': person.id });
+                    }
+                }, true);
+
+            }
+        };
+
+        return directiveDefinitionObject;
+    })
+
+
+;
+

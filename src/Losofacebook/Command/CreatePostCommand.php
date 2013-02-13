@@ -22,23 +22,31 @@ class CreatePostCommand extends Command
         $this
             ->setName('dev:create-post')
             ->setDescription('Creates loads of posts')
-            ->addArgument('count', InputArgument::REQUIRED, 1);
+            ->addArgument('count', InputArgument::REQUIRED, 1)
+            ->addArgument('username', InputArgument::OPTIONAL, null);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $db = $this->getDb();
 
-        $min = $db->fetchColumn("SELECT MIN(id) FROM person");
-        $max = $db->fetchColumn("SELECT MAX(id) FROM person");
+        $username = $input->getArgument('username');
+        if (!$username) {
+            $min = $db->fetchColumn("SELECT MIN(id) FROM person");
+            $max = $db->fetchColumn("SELECT MAX(id) FROM person");
+        } else {
+            $person = $this->getPersonService()->findByUsername($username, true);
+            $personId = $person->getId();
+        }
 
-        for ($x = 1; $x <= $input->getArgument('count'); $x = $x + 1) {
+        for ($posts = 1; $posts <= $input->getArgument('count'); $posts = $posts + 1) {
 
-            $personId = rand($min, $max);
+            if (!$username) {
+                $personId = rand($min, $max);
+                $person = $this->getPersonService()->findById($personId, true);
+            }
 
             try {
-
-                $person = $this->getPersonService()->findById($personId);
 
                 $potentials = array_merge([$person], $person->getFriends());
 
@@ -46,9 +54,15 @@ class CreatePostCommand extends Command
 
                 $now = (new DateTime())->format('U');
 
+                if (rand(1, 10) >= 8) {
+                    $posterId = $potentials[array_rand($potentials)]->getId();
+                } else {
+                    $posterId = $personId;
+                }
+
                 $post = [
                     'person_id' => $person->getId(),
-                    'poster_id' => $potentials[array_rand($potentials)]->getId(),
+                    'poster_id' => $posterId,
                     'date_created' => DateTime::createFromFormat('U', rand($now - 500000, $now))->format('Y-m-d H:i:s'),
                     'content' => $this->getRandomLipsum(),
                 ];
@@ -62,44 +76,24 @@ class CreatePostCommand extends Command
 
                 for ($x = 1; $x <= $commentCount; $x = $x + 1) {
 
+                    if (rand(1, 10) >= 4) {
+                        $posterId = $potentials[array_rand($potentials)]->getId();
+                    } else {
+                        $posterId = $personId;
+                    }
+
                     $comments[] = [
                         'post_id' => $post['id'],
-                        'poster_id' => $potentials[array_rand($potentials)]->getId(),
+                        'poster_id' => $posterId,
                         'date_created' => DateTime::createFromFormat('U', rand($now - 500000, $now))->format('Y-m-d H:i:s'),
                         'content' => $this->getRandomLipsum(),
                     ];
-
-                     /*
-                    -> id integer unsigned NOT NULL AUTO_INCREMENT,
-    -> post_id integer unsigned NOT NULL,
-    -> poster_id integer unsigned NOT NULL,
-    -> date_created datetime NOT NULL,
-    -> content text NOT NULL,
-    -> PRIMARY KEY(id),
-                     */
-
 
                 }
 
                 foreach ($comments as $comment) {
                     $db->insert('comment', $comment);
                 }
-
-
-/*
-id integer unsigned NOT NULL AUTO_INCREMENT,
-person_id integer unsigned NOT NULL,
-poster_id integer unsigned NOT NULL,
-date_created datetime NOT NULL,
-content text NOT NULL,
-PRIMARY KEY(id),
-FOREIGN KEY(person_id) REFERENCES person(id) ON DELETE CASCADE ON UPDATE CASCADE,
-FOREIGN KEY(poster_id) REFERENCES person(id) ON DELETE CASCADE ON UPDATE CASCADE
-) engine=InnoDB DEFAULT CHARSET=utf8;
-*/
-
-                var_dump($post);
-                var_dump($comments);
 
 
                 $output->writeln("Made a post for {$personId}");
@@ -130,8 +124,12 @@ FOREIGN KEY(poster_id) REFERENCES person(id) ON DELETE CASCADE ON UPDATE CASCADE
     protected function getRandomLipsum()
     {
         if (!$this->lipsums) {
-            $this->lipsums['short'] = explode("\n", file_get_contents("http://loripsum.net/api/2000/short"));
-            $this->lipsums['medium'] = explode("\n", file_get_contents("http://loripsum.net/api/2000/medium"));
+            $this->lipsums['short'] = explode("\n\n", file_get_contents("http://loripsum.net/api/2000/short"));
+            $this->lipsums['medium'] = explode("\n\n", file_get_contents("http://loripsum.net/api/2000/medium"));
+
+            array_pop($this->lipsums['short']);
+            array_pop($this->lipsums['medium']);
+
         }
 
         $lengths = ['short', 'medium'];

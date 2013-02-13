@@ -77,4 +77,9 @@ FOREIGN KEY(post_id) REFERENCES post(id) ON DELETE CASCADE ON UPDATE CASCADE,
 FOREIGN KEY(poster_id) REFERENCES person(id) ON DELETE CASCADE ON UPDATE CASCADE
 ) engine=InnoDB DEFAULT CHARSET=utf8;
 
+# Lussuhovi
 
+ALTER TABLE person CHANGE weight weight decimal(6,2) NULL;
+ALTER TABLE person CHANGE height height decimal(6,2) NULL;
+
+ALTER TABLE image ADD COLUMN upload_path varchar(500) NULL;

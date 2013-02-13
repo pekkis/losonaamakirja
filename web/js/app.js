@@ -2,19 +2,24 @@
 
 // Declare app level module which depends on filters, and services
 angular
-    .module('losofacebook', ['ngSanitize', 'losofacebook.filters', 'losofacebook.services', 'losofacebook.directives'])
+    .module('losofacebook', ['ngSanitize', 'ngCookies', 'losofacebook.filters', 'losofacebook.services', 'losofacebook.directives'])
+    .constant('user', 'gaylord.lohiposki')
+    .value('currentUser', { 'firstName': 'Gaylord', 'lastName': 'Lohiposki', 'primaryImageId': 469, 'id': 2469079, 'username': 'gaylord.lohiposki' })
     .config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
 
     $locationProvider.html5Mode(true);
 
     $routeProvider
-        .when('/', {
-            controller: IndexCtrl,
-            templateUrl: '/views/front.html'
-        })
         .when('/person/:username', {
             controller: PersonCtrl,
             templateUrl: '/views/person.html'
+        })
+        .otherwise({ 
+            redirectTo: '/person/gaylord.lohiposki'
         });
 
-}]);
+}])
+    .run(function($cookies, $browser, user) {
+        $cookies.user = user;
+    }
+);

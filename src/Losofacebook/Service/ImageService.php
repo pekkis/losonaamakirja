@@ -11,10 +11,14 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class ImageService
 {
+    const COMPRESSION_TYPE = Imagick::COMPRESSION_JPEG;
+
     /**
      * @var Connection
      */
     private $conn;
+
+
 
     /**
      * @param $basePath
@@ -26,29 +30,41 @@ class ImageService
     }
 
     /**
-     * Uploads image
+     * Creates image
      *
      * @param $path
+     * @return integer
      */
     public function createImage($path)
     {
-        $compressionType = Imagick::COMPRESSION_JPEG;
-
-        $this->conn->insert('image', array());
+        $this->conn->insert(
+            'image',
+            [
+                'upload_path' => $path
+            ]
+        );
         $id = $this->conn->lastInsertId();
 
         $img = new Imagick($path);
-        $thumb = clone $img;
 
         $img->setImageFormat("jpeg");
-        $img->setImageCompression($compressionType);
+        $img->setImageCompression(self::COMPRESSION_TYPE);
         $img->setImageCompressionQuality(90);
-
         $img->scaleImage(1200, 1200, true);
         $img->writeImage($this->basePath . '/' . $id);
 
+        $this->createVersions($id);
+
+        return $id;
+    }
+
+    public function createVersions($id)
+    {
+        $img = new Imagick($this->basePath . '/' . $id);
+        $thumb = clone $img;
+
         $thumb->cropThumbnailimage(500, 500);
-        $thumb->setImageCompression($compressionType);
+        $thumb->setImageCompression(self::COMPRESSION_TYPE);
         $thumb->setImageCompressionQuality(90);
         $thumb->writeImage($this->basePath . '/' . $id . '-thumb');
     }

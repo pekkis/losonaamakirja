@@ -4,7 +4,7 @@ namespace Losofacebook;
 
 class Post extends Entity
 {
-    private $person;
+    private $poster;
 
     private $comments = [];
 
@@ -14,21 +14,21 @@ class Post extends Entity
     public function jsonSerialize()
     {
         return [
-            'person' => $this->getPerson(),
+            'poster' => $this->getPoster(),
             'comments' => $this->getComments(),
             'date_created' => $this->getDateCreated(),
             'content' => $this->getContent(),
         ];
     }
 
-    public function setPerson(Person $person)
+    public function setPerson(Person $poster)
     {
-        $this->person = $person;
+        $this->poster = $poster;
     }
 
-    public function getPerson()
+    public function getPoster()
     {
-        return $this->person;
+        return $this->poster;
     }
 
 
@@ -50,6 +50,11 @@ class Post extends Entity
     public function getContent()
     {
         return $this->data['content'];
+    }
+
+    public function getPersonId()
+    {
+        return $this->data['personId'];
     }
 
 }

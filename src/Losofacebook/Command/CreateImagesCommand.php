@@ -39,7 +39,6 @@ class CreateImagesCommand extends Command
         foreach ($finder as $file) {
             $output->writeln("{$file->getRealpath()}");
             $is->createImage($file->getRealpath());
-
         }
     }
 

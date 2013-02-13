@@ -36,9 +36,9 @@ class AssociateImagesCommand extends Command
             $output->writeln("Associating #{$person['id']}");
 
             if ($person['gender'] == 1) {
-                $primaryImageId = rand(140, 159);
+                $primaryImageId = rand(415, 468);
             } else {
-                $primaryImageId = rand(103, 139);
+                $primaryImageId = rand(343, 414);
             }
 
             $backgroundId = rand(1, 30);
