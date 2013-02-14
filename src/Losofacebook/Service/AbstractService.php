@@ -30,7 +30,9 @@ abstract class AbstractService
         $qb->select('*')->from($this->tableName, 'tbl');
         foreach ($params as $key => $value) {
 
-            if (is_array($value)) {
+            if (is_callable($value)) {
+                $value($qb);
+            } elseif (is_array($value)) {
 
                 if (!$value) {
                     $value = [-1];

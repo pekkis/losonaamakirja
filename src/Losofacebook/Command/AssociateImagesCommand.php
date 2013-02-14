@@ -26,7 +26,13 @@ class AssociateImagesCommand extends Command
     {
         $db = $this->getDb();
 
-        $persons = $db->fetchAll("SELECT id, gender FROM person");
+        $persons = $db->fetchAll("SELECT id, gender FROM person WHERE username <> 'gaylord.lohiposki'");
+
+        $femalesMin = $db->fetchColumn("SELECT MIN(id) FROM image WHERE upload_path LIKE '%/females/%'");
+        $femalesMax = $db->fetchColumn("SELECT MAX(id) FROM image WHERE upload_path LIKE '%/females/%'");
+
+        $malesMin = $db->fetchColumn("SELECT MIN(id) FROM image WHERE upload_path LIKE '%/males/%'");
+        $malesMax = $db->fetchColumn("SELECT MAX(id) FROM image WHERE upload_path LIKE '%/males/%'");
 
         $sql = "UPDATE person SET primary_image_id = ?, background_id = ? WHERE id = ?";
         $stmt = $db->prepare($sql);
@@ -36,9 +42,9 @@ class AssociateImagesCommand extends Command
             $output->writeln("Associating #{$person['id']}");
 
             if ($person['gender'] == 1) {
-                $primaryImageId = rand(415, 468);
+                $primaryImageId = rand($malesMin, $malesMax);
             } else {
-                $primaryImageId = rand(343, 414);
+                $primaryImageId = rand($femalesMin, $femalesMax);
             }
 
             $backgroundId = rand(1, 30);

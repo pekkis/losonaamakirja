@@ -19,6 +19,7 @@ class CreateCorporateImagesCommand extends Command
     {
         $this
             ->setName('dev:create-corporate-images')
+            ->addArgument('skip', InputArgument::OPTIONAL, 0)
             ->setDescription('Creates corporate images');
     }
 
@@ -26,29 +27,61 @@ class CreateCorporateImagesCommand extends Command
     {
         $output->writeln("Will parse corporate images.");
 
-        $finder = new Finder();
+        $db = $this->getDb();
 
-        $finder
-            ->files()
-            ->in($this->getProjectDirectory() . '/app/dev/imaginarium/corporation');
+        if (!$input->getArgument('skip')) {
+            $finder = new Finder();
 
-        $is = $this->getImageService();
+            $finder
+                ->files()
+                ->in($this->getProjectDirectory() . '/app/dev/imaginarium/corporation');
 
-        $imageIds = [];
+            $is = $this->getImageService();
 
-        foreach ($finder as $file) {
-            $output->writeln("{$file->getRealpath()}");
-            $imageIds[] = $is->createImage($file->getRealpath(), Image::TYPE_CORPORATE);
+            $imageIds = [];
+
+            foreach ($finder as $file) {
+                $output->writeln("{$file->getRealpath()}");
+
+                $imageId = $is->createImage($file->getRealpath(), Image::TYPE_CORPORATE);
+
+                if (preg_match('/kobros/', $file->getRealpath())) {
+                    $kobrosImageId = $imageId;
+                } else {
+                    $imageIds[] = $imageId;
+                }
+
+            }
+        } else {
+            $images = $db->fetchAll("SELECT * FROM image WHERE type = 2");
+
+            foreach ($images as $image) {
+                if (preg_match('/kobros/', $image['upload_path'])) {
+                    $kobrosImageId = $image['id'];
+                } else {
+                    $imageIds[] = $image['id'];
+                }
+            }
+
         }
 
-        $db = $this->getDb();
+
         $companies = $db->fetchAll("SELECT * FROM company");
 
-        $stmt = $db->prepare("UPDATE company SET primary_image_id = ? WHERE id = ?");
+        $stmt = $db->prepare("UPDATE company SET primary_image_id = ?, background_id = ? WHERE id = ?");
 
         foreach ($companies as $company) {
-            $stmt->execute([$imageIds[array_rand($imageIds)], $company['id']]);
+
+            if ($company['name'] == 'Dr. Kobros Foundation') {
+                $imageId = $kobrosImageId;
+            } else {
+                $imageId = $imageIds[array_rand($imageIds)];
+            }
+
+            $stmt->execute([$imageId, rand(1, 30), $company['id']]);
         }
+
+
     }
 
     /**

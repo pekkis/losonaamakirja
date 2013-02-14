@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\KernelEvent;
 use Silex\Provider\SessionServiceProvider;
+use Doctrine\DBAL\Query\QueryBuilder;
 
 $app = new Silex\Application();
 
@@ -82,6 +83,15 @@ $app->get('/api/person', function(Application $app, Request $request) {
     $personService = $app['personService'];
 
     $params = $request->query->all();
+
+    /* Great and totally unsafe kludge for like searches :) */
+    foreach ($params as $key => $value) {
+        if (preg_match('/%/', $value)) {
+            $params[$key] = function (QueryBuilder $qb) use($key, $value) {
+                $qb->andWhere($qb->expr()->like($key, $qb->expr()->literal($value)));
+            };
+        }
+    }
 
     $persons = $personService->findBy($params, false);
 

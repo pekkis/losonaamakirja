@@ -2,7 +2,20 @@
 
 /* Controllers */
 
-function IndexCtrl($scope, $routeParams, $location) {
+function IndexCtrl($scope, Person) {
+
+    $scope.user = {};
+
+    $scope.search = function() {
+
+        var user = angular.copy($scope.user);
+
+        user.first_name = (user.first_name || '') + '%';
+        user.last_name = (user.last_name || '') + '%';
+
+         $scope.results = Person.query(user);
+
+    };
 
     /*
     $scope.recommendation = '';

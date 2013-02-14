@@ -30,23 +30,6 @@ class CreatePostCommand extends Command
     {
         $db = $this->getDb();
 
-
-        $lus = $this->getPersonService()->findBy(
-            [
-                'id' => $this->getPersonService()->findFriendIds(2469079),
-            ],
-            [
-                'orderBy' => ['last_name DESC', 'first_name ASC'],
-                'offset' => 0,
-                'limit' => 10,
-            ],
-            true
-        );
-
-        var_dump($lus->current());
-
-        return;
-
         $username = $input->getArgument('username');
         if (!$username) {
             $min = $db->fetchColumn("SELECT MIN(id) FROM person");

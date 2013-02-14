@@ -10,6 +10,7 @@ use Symfony\Component\Finder\Finder;
 use Keboola\Csv\CsvFile;
 use Doctrine\DBAL\Connection;
 use Losofacebook\Service\ImageService;
+use Losofacebook\Image;
 
 class CreateGaylordLohiposkiCommand extends Command
 {
@@ -18,6 +19,7 @@ class CreateGaylordLohiposkiCommand extends Command
     {
         $this
             ->setName('dev:create-gaylord-lohiposki')
+            ->addArgument('femaleFriends', InputArgument::OPTIONAL, 2000)
             ->setDescription('Creates Gaylord Lohiposki');
     }
 
@@ -28,12 +30,11 @@ class CreateGaylordLohiposkiCommand extends Command
         $db = $this->getDb();
         $db->exec("DELETE FROM person WHERE username = 'gaylord.lohiposki'");
 
-
         $imageId = $db->fetchColumn("SELECT id from image WHERE upload_path LIKE '%lohiposki%'");
         if (!$imageId) {
             $imageId = $this
                 ->getImageService()
-                ->createImage($this->getProjectDirectory() . '/app/dev/gaylord-lohiposki.jpg');
+                ->createImage($this->getProjectDirectory() . '/app/dev/gaylord-lohiposki.jpg', Image::TYPE_PERSON);
         }
 
         $dbrow = array(
@@ -72,7 +73,9 @@ class CreateGaylordLohiposkiCommand extends Command
 
         $output->writeln("Will create lots of female friends for Gaylord.");
 
-        foreach ($db->fetchAll("SELECT id FROM person WHERE gender = 2 ORDER BY RAND() LIMIT 2000") as $femaleFriend) {
+        $femaleFriends = $input->getArgument('femaleFriends');
+
+        foreach ($db->fetchAll("SELECT id FROM person WHERE gender = 2 ORDER BY RAND() LIMIT {$femaleFriends}") as $femaleFriend) {
             $db->insert('friendship', ['target_id' => $gaylordId, 'source_id' => $femaleFriend['id']]);
         }
     }

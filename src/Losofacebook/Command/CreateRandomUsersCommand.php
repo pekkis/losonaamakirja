@@ -18,6 +18,7 @@ class CreateRandomUsersCommand extends Command
     {
         $this
             ->setName('dev:create-random-losofaces')
+            ->addArgument('folder', InputArgument::OPTIONAL, '')
             ->setDescription('Creates loads of random losofaces');
     }
 
@@ -27,10 +28,15 @@ class CreateRandomUsersCommand extends Command
 
         $finder = new Finder();
 
+        $dir = $this->getProjectDirectory() . '/app/dev/fake-names';
+        if ($subdir = $input->getArgument('folder')) {
+            $dir .= '/' . $subdir;
+        }
+
         $finder
             ->name('*.bz2')
             ->files()
-            ->in($this->getProjectDirectory() . '/app/dev/fake-names');
+            ->in($dir);
 
         foreach ($finder as $file) {
 
@@ -113,7 +119,7 @@ class CreateRandomUsersCommand extends Command
                 } catch (\Exception $e) {
                     $output->writeln("\tMultifail");
                     echo $e;
-                    sleep(5);
+                    // sleep(5);
                 }
 
 
