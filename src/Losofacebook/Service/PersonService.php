@@ -3,69 +3,46 @@
 namespace Losofacebook\Service;
 use Doctrine\DBAL\Connection;
 use Losofacebook\Person;
+use DateTime;
+
+use Doctrine\DBAL\Query\QueryBuilder;
 
 /**
  * Image service
  */
-class PersonService
+class PersonService extends AbstractService
 {
-    /**
-     * @var Connection
-     */
-    private $conn;
 
-    /**
-     * @param $basePath
-     */
     public function __construct(Connection $conn)
     {
-        $this->conn = $conn;
+        parent::__construct($conn, 'person');
     }
 
+
     /**
-     * Uploads image
-     *
-     * @param $path
+     * @param $username
+     * @param bool $findFriends
+     * @return Person
      */
     public function findByUsername($username, $findFriends = true)
     {
-
-        $data = $this->conn->fetchAssoc(
-            "SELECT * FROM person WHERE username = ?", [$username]
-        );
-
-        if (!$data) {
-            return false;
-        }
-
-        $person = Person::create($data);
-
-        if ($findFriends) {
-            $person->setFriends($this->findFriends($person->getId()));
-        }
-
-        return $person;
+        return $this->findBy(['username' => $username], [], $findFriends)->current();
     }
 
     public function findById($id, $findFriends = true)
     {
-        $data = $this->conn->fetchAssoc(
-            "SELECT * FROM person WHERE id = ?", [$id]
-        );
-
-        if (!$data) {
-            return false;
-        }
-
-        $person = Person::create($data);
-
-        if ($findFriends) {
-            $person->setFriends($this->findFriends($person->getId()));
-        }
-
-        return $person;
+        return $this->findBy(['id' => $id], [], $findFriends)->current();
     }
 
+    /**
+     * @param array $params
+     */
+    public function findBy(array $params = [], $options = [], $fetchFriends = true)
+    {
+        return parent::findByParams($params, $options, function ($data) use ($fetchFriends) {
+            return $this->createPerson($data, $fetchFriends);
+        });
+    }
 
     public function findFriends($id)
     {
@@ -74,6 +51,27 @@ class PersonService
             $friends[] = $this->findById($friendId, false);
         }
         return $friends;
+    }
+
+    /**
+     * @param $personId
+     * @param array $params
+     * @return \ArrayIterator
+     */
+    public function findFriendsBy($personId, $params = [])
+    {
+        $now = new DateTime();
+
+        $person = $this->findByUsername($personId, true);
+
+        $params['id'] = $this->findFriendIds($person->getId());
+        if (isset($params['birthday'])) {
+            $params['MONTH(birthday)'] = $now->format('m');
+            $params['DAY(birthday)'] = $now->format('d');
+            unset($params['birthday']);
+        }
+
+        return $this->findBy($params, ['orderBy' => ['last_name ASC', 'first_name ASC']], false);
     }
 
 
@@ -102,16 +100,17 @@ class PersonService
         return array_unique(array_merge($myAdded, $meAdded));
     }
 
-    public function addFriend($friendId)
+    /**
+     * @param $data
+     * @param $fetchFriends
+     * @return Person
+     */
+    protected function createPerson($data, $fetchFriends)
     {
-
+        $person = Person::create($data);
+        if ($fetchFriends) {
+            $person->setFriends($this->findFriends($person->getId()));
+        }
+        return $person;
     }
-
-    public function removeFriend($friendId)
-    {
-
-    }
-
-
-
 }

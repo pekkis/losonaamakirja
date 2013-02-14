@@ -25,6 +25,7 @@ class Person extends Entity
             'occupation' => $this->getOccupation(),
             'username' => $this->getUsername(),
             'id' => $this->getId(),
+            'birthday' => $this->getBirthday(),
         ];
     }
 
@@ -103,6 +104,11 @@ class Person extends Entity
     public function getUsername()
     {
         return $this->data['username'];
+    }
+
+    public function getBirthday()
+    {
+        return $this->data['birthday'];
     }
 
 }

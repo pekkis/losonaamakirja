@@ -34,19 +34,19 @@ angular.module('losofacebook.directives', [])
             replace: true,
 
             scope: {
-                'person': '=person'
+                'friends': '=friends'
             },
 
             link: function postLink(scope, element, attrs) {
 
-                console.debug(attrs);
+
 
             }
         };
 
         return directiveDefinitionObject;
     })
-    .directive('lbWall', function factory(Post, currentUser) {
+    .directive('lbWall', function factory(Post, Comment, currentUser) {
 
         var directiveDefinitionObject = {
 
@@ -71,16 +71,20 @@ angular.module('losofacebook.directives', [])
                     post.$save();
 
                     scope.posts.unshift(post);
-
+                    this.post = '';
 
                 };
 
                 scope.postComment = function(post, comment) {
-                    post.comments.push({
+
+                    var comment = new Comment({
+                        'postId': post.id,
                         'content': comment,
-                        'person': currentUser
+                        'poster': currentUser
                     });
 
+                    post.comments.push(comment);
+                    comment.$save();
                     this.comment = '';
                 }
 

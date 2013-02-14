@@ -18,6 +18,7 @@ class Post extends Entity
             'comments' => $this->getComments(),
             'date_created' => $this->getDateCreated(),
             'content' => $this->getContent(),
+            'id' => $this->getId(),
         ];
     }
 
@@ -31,6 +32,10 @@ class Post extends Entity
         return $this->poster;
     }
 
+    public function getId()
+    {
+        return $this->data['id'];
+    }
 
     public function setComments(array $comments)
     {
@@ -56,6 +61,7 @@ class Post extends Entity
     {
         return $this->data['personId'];
     }
+
 
 }
 

@@ -83,3 +83,17 @@ ALTER TABLE person CHANGE weight weight decimal(6,2) NULL;
 ALTER TABLE person CHANGE height height decimal(6,2) NULL;
 
 ALTER TABLE image ADD COLUMN upload_path varchar(500) NULL;
+
+# Lussen
+
+CREATE TABLE company
+(
+id integer unsigned NOT NULL AUTO_INCREMENT,
+name varchar(255) NOT NULL,
+PRIMARY KEY(id)
+) engine=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE image ADD COLUMN type tinyint unsigned NOT NULL DEFAULT 1;
+
+ALTER TABLE company ADD COLUMN primary_image_id integer unsigned NULL;
+ALTER TABLE company ADD COLUMN background_id tinyint NULL;

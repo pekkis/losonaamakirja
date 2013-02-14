@@ -21,7 +21,7 @@ abstract class Entity implements JsonSerializable
 
     /**
      * @param array $data
-     * @return Post
+     * @return Person
      */
     public static function create(array $data = [])
     {

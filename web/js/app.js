@@ -14,6 +14,14 @@ angular
             controller: PersonCtrl,
             templateUrl: '/views/person.html'
         })
+        .when('/company', {
+            controller: CompaniesCtrl,
+            templateUrl: '/views/companies.html'
+        })
+        .when('/company/:name', {
+            controller: CompanyCtrl,
+            templateUrl: '/views/company.html'
+        })
         .otherwise({ 
             redirectTo: '/person/gaylord.lohiposki'
         });

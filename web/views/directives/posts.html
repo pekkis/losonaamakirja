@@ -19,10 +19,10 @@
         <ul class="comments">
             <li class="comment" ng-repeat="comment in post.comments">
 
-                <img ng-src="/api/image/{{ comment.person.primaryImageId }}/thumb" />
+                <img ng-src="/api/image/{{ comment.poster.primaryImageId }}/thumb" />
 
                 <div class="author">
-                    <a ng-href="/person/{{ comment.person.username }}">{{ comment.person.firstName }} {{ comment.person.lastName }}</a>
+                    <a ng-href="/person/{{ comment.poster.username }}">{{ comment.poster.firstName }} {{ comment.poster.lastName }}</a>
                 </div>
 
                 <div ng-bind-html="comment.content"></div>

@@ -10,6 +10,8 @@ use Losofacebook\Command\AssociateImagesCommand;
 use Losofacebook\Command\CreateFriendshipCommand;
 use Losofacebook\Command\CreatePostCommand;
 use Losofacebook\Command\CreateGaylordLohiposkiCommand;
+use Losofacebook\Command\CreateCompaniesCommand;
+use Losofacebook\Command\CreateCorporateImagesCommand;
 
 $app = require_once __DIR__.'/bootstrap.php';
 
@@ -21,6 +23,8 @@ $app['dispatcher']->addListener(ConsoleEvents::INIT, function(ConsoleEvent $even
     $app->add(new CreateFriendshipCommand());
     $app->add(new CreatePostCommand());
     $app->add(new CreateGaylordLohiposkiCommand());
+    $app->add(new CreateCompaniesCommand());
+    $app->add(new CreateCorporateImagesCommand());
 });
 
 $application = $app['console'];

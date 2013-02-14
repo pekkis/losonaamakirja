@@ -11,8 +11,14 @@
                 <h1>{{ person.firstName }} {{ person.lastName }} </h1>
 
                 <div class="row">
-                    <div class="span10">
-                        {{ person.occupation }} at {{ person.company }}
+                    <div id="basic-info" class="span10">
+                        <div>
+                            {{ person.occupation }} at <a href="/company/{{ person.company }}">{{ person.company }}</a>
+                        </div>
+                        <div>
+                            Birthday: {{ person.birthday | date:'dd.MM.yyyy' }}
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -34,8 +40,16 @@
     <div class="span4">
 
         <div class="well">
-        <h2>Friends</h2>
-        <lb-friends person="person"></lb-friends>
+            <h2>Birthday friends</h2>
+
+            <lb-friends friends="birthdayx"></lb-friends>
+
+        </div>
+
+
+        <div class="well">
+            <h2>Friends</h2>
+            <lb-friends friends="person.friends"></lb-friends>
         </div>
     </div>
 

@@ -31,7 +31,11 @@ class PostService
         $this->personService = $personService;
     }
 
-
+    /**
+     * @param int $personId
+     * @param \stdClass $data
+     * @return Post
+     */
     public function create($personId, $data)
     {
         $data = [
@@ -47,6 +51,36 @@ class PostService
         $post = Post::create($data);
         $post->setPerson($this->personService->findById($data['poster_id'], false));
         return $post;
+    }
+
+    /**
+     * @param int $postId
+     * @param \stdClass $data
+     * @return Comment
+     */
+    public function createComment($postId, $data)
+    {
+        try {
+
+        $data = [
+            'post_id' => $postId,
+            'poster_id' => $data->poster->id,
+            'date_created' => (new DateTime())->format('Y-m-d H:i:s'),
+            'content' => $data->content,
+        ];
+            $this->conn->insert('comment', $data);
+
+            $data['id'] = $this->conn->lastInsertId();
+
+            $comment = Comment::create($data);
+            $comment->setPoster($this->personService->findById($data['poster_id'], false));
+            return $comment;
+
+        } catch (\Exception $e) {
+            echo $e;
+            die();
+        }
+
     }
 
 
@@ -120,7 +154,7 @@ class PostService
         $comments = [];
         foreach ($data as $row) {
             $comment = Comment::create($row);
-            $comment->setPerson($this->personService->findById($row['poster_id'], false));
+            $comment->setPoster($this->personService->findById($row['poster_id'], false));
             $comments[] = $comment;
         }
         return $comments;

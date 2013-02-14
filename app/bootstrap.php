@@ -8,6 +8,7 @@ use Silex\Application;
 use Losofacebook\Service\ImageService;
 use Losofacebook\Service\PersonService;
 use Losofacebook\Service\PostService;
+use Losofacebook\Service\CompanyService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,6 +17,8 @@ use Symfony\Component\HttpKernel\Event\KernelEvent;
 use Silex\Provider\SessionServiceProvider;
 
 $app = new Silex\Application();
+
+$app['debug'] = true;
 
 // Simulated login
 $app['dispatcher']->addListener(KernelEvents::REQUEST, function (KernelEvent $event) use ($app) {
@@ -66,8 +69,27 @@ $app['postService'] = $app->share(function (Application $app) {
     return new PostService($app['db'], $app['personService']);
 });
 
+$app['companyService'] = $app->share(function (Application $app) {
+    return new CompanyService($app['db']);
+});
+
 
 // Controllers
+
+$app->get('/api/person', function(Application $app, Request $request) {
+
+    /** @var PersonService $personService */
+    $personService = $app['personService'];
+
+    $params = $request->query->all();
+
+    $persons = $personService->findBy($params, false);
+
+    return new JsonResponse(
+        $persons
+    );
+});
+
 
 $app->get('/api/person/{username}', function(Application $app, $username) {
 
@@ -81,6 +103,20 @@ $app->get('/api/person/{username}', function(Application $app, $username) {
     );
 
 });
+
+$app->get('/api/person/{username}/friend', function(Application $app, Request $request, $username) {
+
+    /** @var PersonService $personService */
+    $personService = $app['personService'];
+
+    $params = $request->query->all();
+
+    return new JsonResponse(
+        $personService->findFriendsBy($username, $params)
+    );
+
+});
+
 
 $app->get('/api/post/{personId}', function(Application $app, $personId) {
 
@@ -109,6 +145,18 @@ $app->post('/api/post/{personId}', function(Application $app, Request $request, 
 
 });
 
+$app->post('/api/post/{postId}/comment', function(Application $app, Request $request, $postId) {
+
+    /** @var PostService $postService */
+    $postService = $app['postService'];
+    $data = json_decode($request->getContent());
+    $comment = $postService->createComment($postId, $data);
+    return new JsonResponse(
+        $comment
+    );
+
+});
+
 
 
 $app->get('/api/image/{id}/{version}', function(Application $app, $id, $version = null) {
@@ -119,6 +167,29 @@ $app->get('/api/image/{id}/{version}', function(Application $app, $id, $version 
     return $response;
 
 })->value('version', null);
+
+
+$app->get('/api/company', function(Application $app, Request $request) {
+
+    /** @var CompanyService $companyService */
+    $companyService = $app['companyService'];
+
+    return new JsonResponse(
+        $companyService->findBy([], ['orderBy' => $request->query->get('orderBy', 'name ASC')])
+    );
+
+});
+
+$app->get('/api/company/{name}', function(Application $app, $name) {
+
+    /** @var CompanyService $companyService */
+    $companyService = $app['companyService'];
+
+    return new JsonResponse(
+        $companyService->findByName($name)
+    );
+
+});
 
 
 

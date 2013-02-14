@@ -9,7 +9,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Keboola\Csv\CsvFile;
 use Losofacebook\Service\ImageService;
+use Losofacebook\Image;
 use Doctrine\DBAL\Connection;
+
 use DateTime;
 
 class CreateImagesCommand extends Command
@@ -30,7 +32,7 @@ class CreateImagesCommand extends Command
 
         $finder
             ->files()
-            ->in($this->getProjectDirectory() . '/app/dev/imaginarium');
+            ->in($this->getProjectDirectory() . '/app/dev/imaginarium/people');
 
         $is = $this->getImageService();
 
@@ -38,7 +40,7 @@ class CreateImagesCommand extends Command
 
         foreach ($finder as $file) {
             $output->writeln("{$file->getRealpath()}");
-            $is->createImage($file->getRealpath());
+            $is->createImage($file->getRealpath(), Image::TYPE_PERSON);
         }
     }
 
