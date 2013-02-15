@@ -28,7 +28,6 @@ class CreateGaylordLohiposkiCommand extends Command
         $output->writeln("Will create Gaylord Lohiposki.");
 
         $db = $this->getDb();
-        $db->exec("DELETE FROM person WHERE username = 'gaylord.lohiposki'");
 
         $imageId = $db->fetchColumn("SELECT id from image WHERE upload_path LIKE '%lohiposki%'");
         if (!$imageId) {
@@ -36,6 +35,16 @@ class CreateGaylordLohiposkiCommand extends Command
                 ->getImageService()
                 ->createImage($this->getProjectDirectory() . '/app/dev/gaylord-lohiposki.jpg', Image::TYPE_PERSON);
         }
+
+        $person = $db->fetchAssoc("SELECT * FROM person WHERE username = 'gaylord.lohiposki'");
+        if ($person) {
+            $db->executeUpdate("UPDATE person SET primary_image_id = ? WHERE id = ?", [$imageId, $person['id']]);
+            $output->writeln("Fixed Gaylord.");
+
+            return;
+        }
+
+        $db->exec("DELETE FROM person WHERE username = 'gaylord.lohiposki'");
 
         $dbrow = array(
             'gender' => 1,

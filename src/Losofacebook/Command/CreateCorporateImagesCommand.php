@@ -29,7 +29,12 @@ class CreateCorporateImagesCommand extends Command
 
         $db = $this->getDb();
 
+
+
         if (!$input->getArgument('skip')) {
+
+            $db->exec("DELETE FROM image WHERE type = 2");
+
             $finder = new Finder();
 
             $finder
