@@ -4,7 +4,7 @@
 angular
     .module('losofacebook', ['ngSanitize', 'ngCookies', 'losofacebook.filters', 'losofacebook.services', 'losofacebook.directives'])
     .constant('user', 'gaylord.lohiposki')
-    .value('currentUser', { 'firstName': 'Gaylord', 'lastName': 'Lohiposki', 'primaryImageId': 469, 'id': 10940, 'username': 'gaylord.lohiposki' })
+    .value('currentUser', { 'firstName': 'Gaylord', 'lastName': 'Lohiposki', 'primaryImageId': 469, 'id': 2469079, 'username': 'gaylord.lohiposki' })
     .config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
 
     $locationProvider.html5Mode(true);

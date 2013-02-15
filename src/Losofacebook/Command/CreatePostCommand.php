@@ -10,6 +10,7 @@ use Symfony\Component\Finder\Finder;
 use Keboola\Csv\CsvFile;
 use Doctrine\DBAL\Connection;
 use Losofacebook\Service\PersonService;
+use Losofacebook\Person;
 use DateTime;
 
 class CreatePostCommand extends Command
@@ -23,28 +24,32 @@ class CreatePostCommand extends Command
             ->setName('dev:create-post')
             ->setDescription('Creates loads of posts')
             ->addArgument('count', InputArgument::REQUIRED, 1)
-            ->addArgument('username', InputArgument::OPTIONAL, null);
+            ->addArgument('username', InputArgument::REQUIRED, null);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $count = $input->getArgument('count');
+        $username = $input->getArgument('username');
+
+        $person = $this->getPersonService()->findByUsername($username);
+
+        $this->createPosts($person->getId(), $output, $count);
+        foreach ($person->getFriends() as $friend) {
+            $this->createPosts($friend->getId(), $output, $count);
+        }
+    }
+
+
+    private function createPosts($personId, OutputInterface $output, $count)
+    {
+        $person = $this->getPersonService()->findById($personId, true);
+
+        $output->write('Creating ' . $count . ' posts for ' . $person->getFirstName() . ' ' . $person->getLastName());
+
         $db = $this->getDb();
 
-        $username = $input->getArgument('username');
-        if (!$username) {
-            $min = $db->fetchColumn("SELECT MIN(id) FROM person");
-            $max = $db->fetchColumn("SELECT MAX(id) FROM person");
-        } else {
-            $person = $this->getPersonService()->findByUsername($username, true);
-            $personId = $person->getId();
-        }
-
-        for ($posts = 1; $posts <= $input->getArgument('count'); $posts = $posts + 1) {
-
-            if (!$username) {
-                $personId = rand($min, $max);
-                $person = $this->getPersonService()->findById($personId, true);
-            }
+        for ($posts = 1; $posts <= $count; $posts = $posts + 1) {
 
             try {
 
@@ -57,7 +62,7 @@ class CreatePostCommand extends Command
                 if (rand(1, 10) >= 8) {
                     $posterId = $potentials[array_rand($potentials)]->getId();
                 } else {
-                    $posterId = $personId;
+                    $posterId = $person->getId();
                 }
 
                 $post = [
@@ -79,7 +84,7 @@ class CreatePostCommand extends Command
                     if (rand(1, 10) >= 4) {
                         $posterId = $potentials[array_rand($potentials)]->getId();
                     } else {
-                        $posterId = $personId;
+                        $posterId = $person->getId();
                     }
 
                     $comments[] = [
@@ -95,14 +100,15 @@ class CreatePostCommand extends Command
                     $db->insert('comment', $comment);
                 }
 
-
-                $output->writeln("Made a post for {$personId}");
+                $output->writeln("Made a post for {$person->getId()}");
 
             } catch (\Exception $e) {
-                $output->writeln("Friendship between {$sourceId} and {$targetId} failed");
+                $output->writeln("Failed");
             }
         }
+
     }
+
 
     /**
      * @return Connection
