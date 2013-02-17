@@ -51,7 +51,7 @@
 
             <tbody>
                 <tr ng-repeat="person in results | orderBy:['lastName', 'firstName']">
-                    <td><img class="mini" src="/api/image/{{ person.primaryImageId}}/thumb"><a href="/person/{{ person.username }}">{{ person.username}}</a></td>
+                    <td><img class="mini" ng-src="/api/image/{{ person.primaryImageId}}/thumb"><a href="/person/{{ person.username }}">{{ person.username}}</a></td>
                     <td>{{ person.lastName}}</td>
                     <td>{{ person.firstName}}</td>
                     <td><a href="/company/>{{ person.company}}">{{ person.company}}</a></td>
