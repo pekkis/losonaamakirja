@@ -2,13 +2,12 @@
 server {
     listen       80;
     server_name  losonaamakirja.tunk.io;
-    root    /wwwroot/losonaamakirja/web;
+    root    /home/user/losofacebook/web;
 
     keepalive_timeout 0;
     if_modified_since off;
     add_header Last-Modified "";
     add_header ETag "";
-
 
     location ~* ^/api/ {
 
@@ -17,13 +16,8 @@ server {
         proxy_connect_timeout 120;
 
         include fastcgi_params;
-        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_pass unix:/var/run/php5-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $document_root/index.php;
         fastcgi_param PATH_INFO $fastcgi_script_name;
     }
-
-    location / {
-        try_files $uri /index.html;
-    }
 }
-

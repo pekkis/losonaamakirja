@@ -41,7 +41,7 @@ $app->register(new DoctrineServiceProvider(), array(
         'port' => 3306,
         'dbname' => 'losofacebook',
         'user' => 'root',
-        'password' => 'g04753m135',
+        'password' => 'userpassu',
         'charset' => 'utf8',
     ),
 ));
