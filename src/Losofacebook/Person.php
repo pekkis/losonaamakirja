@@ -2,6 +2,8 @@
 
 namespace Losofacebook;
 
+use ArrayIterator;
+
 class Person extends Entity
 {
 
@@ -80,7 +82,7 @@ class Person extends Entity
     /**
      * @param array $friends
      */
-    public function setFriends(array $friends)
+    public function setFriends(ArrayIterator $friends)
     {
         $this->friends = $friends;
     }

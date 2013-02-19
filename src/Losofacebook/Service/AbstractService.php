@@ -72,7 +72,7 @@ abstract class AbstractService
             $qb->setFirstResult(($options['page'] -1) * $options['limit']);
             $qb->setMaxResults($options['limit']);
         }
-
+        
         $raw = array_map(
             function($data) use ($callback) {
                 return $callback($data);

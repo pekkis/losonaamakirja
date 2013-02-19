@@ -4,6 +4,7 @@ namespace Losofacebook\Service;
 use Doctrine\DBAL\Connection;
 use Losofacebook\Person;
 use DateTime;
+use Memcached;
 
 use Doctrine\DBAL\Query\QueryBuilder;
 
@@ -12,10 +13,16 @@ use Doctrine\DBAL\Query\QueryBuilder;
  */
 class PersonService extends AbstractService
 {
-
-    public function __construct(Connection $conn)
+    /**
+     *
+     * @var Memcached 
+     */
+    private $memcached;
+    
+    public function __construct(Connection $conn, Memcached $memcached)
     {
         parent::__construct($conn, 'person');
+        $this->memcached = $memcached;
     }
 
 
@@ -46,11 +53,20 @@ class PersonService extends AbstractService
 
     public function findFriends($id)
     {
-        $friends = [];
+        return $this->findBy(
+            [
+                'id' => $this->findFriendIds($id),
+            ],
+            [],
+            false
+        );
+                
+        /*
         foreach ($this->findFriendIds($id) as $friendId) {
             $friends[] = $this->findById($friendId, false);
         }
         return $friends;
+        */
     }
 
     /**
@@ -74,9 +90,17 @@ class PersonService extends AbstractService
         return $this->findBy($params, ['orderBy' => ['last_name ASC', 'first_name ASC']], false);
     }
 
-
+    /**
+     * @param int $id
+     * @return array
+     */
     public function findFriendIds($id)
     {
+        $cacheId = "friend_ids_{$id}";
+        if ($ids = $this->memcached->get($cacheId)) {
+            return $ids;
+        }        
+        
         $myAdded = $this->conn->fetchAll(
             "SELECT target_id FROM friendship WHERE source_id = ?",
             [$id]
@@ -97,7 +121,9 @@ class PersonService extends AbstractService
             return $result;
         }, []);
 
-        return array_unique(array_merge($myAdded, $meAdded));
+        $ret = array_unique(array_merge($myAdded, $meAdded));
+        $this->memcached->set($cacheId, $ret, 600);
+        return $ret;        
     }
 
     /**

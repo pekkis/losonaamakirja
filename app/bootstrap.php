@@ -16,14 +16,22 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\KernelEvent;
 use Silex\Provider\SessionServiceProvider;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Memcached;
+
+use Silex\Provider\MonologServiceProvider;
+use Monolog\Handler\ChromePHPHandler;
+use Monolog\Handler\FirePHPHandler;
 
 $app = new Silex\Application();
-
 $app['debug'] = true;
 
 // Simulated login
 $app['dispatcher']->addListener(KernelEvents::REQUEST, function (KernelEvent $event) use ($app) {
     $app['session']->set('user', array('username' => 'gaylord.lohiposki'));
+    
+    // $logger = new Doctrine\DBAL\Logging\EchoSQLLogger();
+    // $conn->getConfiguration()->setSQLLogger($logger);
+        
 });
 
 // Providers
@@ -56,15 +64,21 @@ $app->register(
     ]
 );
 
-// Services
+
+$app['memcached'] = $app->share(function (Application $app) {
+    $m = new Memcached();
+    $m->addServer('localhost', 11211);
+    return $m;
+});
+
+$app['personService'] = $app->share(function (Application $app) {
+    return new PersonService($app['db'], $app['memcached']);
+});
 
 $app['imageService'] = $app->share(function (Application $app) {
     return new ImageService($app['db'], realpath(__DIR__ . '/data/images'));
 });
 
-$app['personService'] = $app->share(function (Application $app) {
-    return new PersonService($app['db']);
-});
 
 $app['postService'] = $app->share(function (Application $app) {
     return new PostService($app['db'], $app['personService']);
@@ -83,7 +97,7 @@ $app->get('/api/person', function(Application $app, Request $request) {
     $personService = $app['personService'];
 
     $params = $request->query->all();
-
+    
     /* Great and totally unsafe kludge for like searches :) */
     foreach ($params as $key => $value) {
         if (preg_match('/%/', $value)) {
@@ -92,8 +106,7 @@ $app->get('/api/person', function(Application $app, Request $request) {
             };
         }
     }
-
-    $persons = $personService->findBy($params, false);
+    $persons = $personService->findBy($params,  [], false);
 
     return new JsonResponse(
         $persons
@@ -200,7 +213,25 @@ $app->get('/api/company/{name}', function(Application $app, $name) {
 
 });
 
+$app->register(
+    new MonologServiceProvider(),[]
+);
 
-
+$app['monolog.handler'] = function () use ($app) {
+    return new ChromePHPHandler($app['monolog.level']);
+};
+if ( $app['debug'] ) {
+    
+    $logger = new Doctrine\DBAL\Logging\DebugStack();
+    
+    $app['db.config']->setSQLLogger($logger);
+    
+    $app->after(function(Request $request, Response $response) use ($app, $logger) {
+        $queries = array_slice($logger->queries, sizeof($queries) - 100);
+        foreach ($queries as $query) {
+            $app['monolog']->debug($query['sql']);
+        }
+    });
+}
 
 return $app;
