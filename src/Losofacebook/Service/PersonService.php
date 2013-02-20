@@ -27,7 +27,13 @@ class PersonService extends AbstractService
      */
     public function findByUsername($username, $findFriends = true)
     {
-        return $this->findBy(['username' => $username], [], $findFriends)->current();
+        return $this->tryCache(
+            "person_username_{$username}",
+            function () use ($username, $findFriends) {
+                return $this->findBy(['username' => $username], [], $findFriends)->current();
+            },
+            600
+        );
     }
 
     public function findById($id, $findFriends = true)

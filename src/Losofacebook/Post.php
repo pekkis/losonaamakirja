@@ -59,7 +59,7 @@ class Post extends Entity
 
     public function getPersonId()
     {
-        return $this->data['personId'];
+        return $this->data['person_id'];
     }
 
 

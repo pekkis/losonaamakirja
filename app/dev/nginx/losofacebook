@@ -4,10 +4,10 @@ server {
     server_name  losonaamakirja.tunk.io;
     root    /home/user/losofacebook/web;
 
-    keepalive_timeout 0;
-    if_modified_since off;
-    add_header Last-Modified "";
-    add_header ETag "";
+    # keepalive_timeout 0;
+    #if_modified_since off;
+    #add_header Last-Modified "";
+    #add_header ETag "";
 
     charset utf-8;
 

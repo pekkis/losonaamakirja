@@ -37,6 +37,9 @@ class PostService extends AbstractService
      */
     public function create($personId, $data)
     {
+        $cacheId = "post_person_{$personId}";
+        $this->memcached->delete($cacheId);
+        
         $data = [
             'person_id' => $personId,
             'poster_id' => $data->poster->id,
@@ -61,12 +64,29 @@ class PostService extends AbstractService
     {
         try {
 
-        $data = [
-            'post_id' => $postId,
-            'poster_id' => $data->poster->id,
-            'date_created' => (new DateTime())->format('Y-m-d H:i:s'),
-            'content' => $data->content,
-        ];
+             $post = $this->findByParams(
+                 [
+                     'id' => $postId
+                 ],
+                 [],
+                 function ($data) {
+                    return Post::create($data);
+                 }
+            )->current();
+
+            if (!$post) {
+                throw new \IllegalArgumentException("Invalid post");
+            }
+            
+            $cacheId = "post_person_{$post->getPersonId()}";
+            $this->memcached->delete($cacheId);            
+            
+            $data = [
+                'post_id' => $postId,
+                'poster_id' => $data->poster->id,
+                'date_created' => (new DateTime())->format('Y-m-d H:i:s'),
+                'content' => $data->content,
+            ];
             $this->conn->insert('comment', $data);
 
             $data['id'] = $this->conn->lastInsertId();
@@ -100,7 +120,6 @@ class PostService extends AbstractService
 
                 $posts = [];
                 foreach ($data as $row) {
-
 
                     $post = Post::create($row);
                     $post->setPerson($this->personService->findById($row['poster_id'], false));
