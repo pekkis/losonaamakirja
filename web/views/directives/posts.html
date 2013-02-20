@@ -1,4 +1,4 @@
-<div>
+<div when-scrolled="fetchMore()">
 
 <p>
     <textarea ng-model="post" placeholder="Say something!"></textarea>
@@ -39,5 +39,10 @@
     </li>
 
 </ul>
+
+{{ page }}
+
+<button ng-click="fetchMore()">Fetch some more</button>
+
 
 </div>

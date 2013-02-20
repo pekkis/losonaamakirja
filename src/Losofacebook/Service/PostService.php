@@ -39,7 +39,7 @@ class PostService extends AbstractService
     {
         $cacheId = "post_person_{$personId}";
         $this->memcached->delete($cacheId);
-        
+
         $data = [
             'person_id' => $personId,
             'poster_id' => $data->poster->id,
@@ -51,7 +51,7 @@ class PostService extends AbstractService
         $data['id'] = $this->conn->lastInsertId();
 
         $post = Post::create($data);
-        $post->setPerson($this->personService->findById($data['poster_id'], false));
+        $post->setPoster($this->personService->findById($data['poster_id'], false));
         return $post;
     }
 
@@ -63,6 +63,7 @@ class PostService extends AbstractService
     public function createComment($postId, $data)
     {
         try {
+
 
              $post = $this->findByParams(
                  [
@@ -77,10 +78,10 @@ class PostService extends AbstractService
             if (!$post) {
                 throw new \IllegalArgumentException("Invalid post");
             }
-            
+
             $cacheId = "post_person_{$post->getPersonId()}";
-            $this->memcached->delete($cacheId);            
-            
+            $this->memcached->delete($cacheId);
+
             $data = [
                 'post_id' => $postId,
                 'poster_id' => $data->poster->id,
@@ -121,20 +122,17 @@ class PostService extends AbstractService
                 $posts = [];
                 foreach ($data as $row) {
 
-                    $post = Post::create($row);
-                    $post->setPerson($this->personService->findById($row['poster_id'], false));
-                    $post->setComments($this->getComments($row['id']));
-
+                    $post = $this->createPost($row);
                     $posts[] = $post;
                 }
 
                 return $posts;
-                  
+
             },
             null
         );
-        
-        
+
+
     }
 
     public function getComments($postId)
@@ -150,5 +148,25 @@ class PostService extends AbstractService
             $comments[] = $comment;
         }
         return $comments;
+    }
+
+
+    /**
+     * @param array $params
+     */
+    public function findBy(array $params = [], $options = [])
+    {
+        return parent::findByParams($params, $options, function ($data) {
+            return $this->createPost($data);
+        });
+    }
+
+    protected function createPost($data)
+    {
+        $post = Post::create($data);
+        $post->setPoster($this->personService->findById($data['poster_id'], false));
+        $post->setComments($this->getComments($data['id']));
+
+        return $post;
     }
 }

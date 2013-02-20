@@ -18,14 +18,14 @@ abstract class AbstractService
      * @var string
      */
     private $tableName;
-    
+
     /**
-     * @var Memcached 
+     * @var Memcached
      */
     protected $memcached;
 
     /**
-     * 
+     *
      * @param Connection $conn
      * @param type $tableName
      * @param Memcached $memcached
@@ -88,7 +88,7 @@ abstract class AbstractService
             $qb->setFirstResult(($options['page'] -1) * $options['limit']);
             $qb->setMaxResults($options['limit']);
         }
-        
+
         $raw = array_map(
             function($data) use ($callback) {
                 return $callback($data);
@@ -99,16 +99,16 @@ abstract class AbstractService
         return new ArrayIterator($raw);
 
     }
-    
-    
+
+
     protected function tryCache($cacheId,callable $callback, $lifetime = null)
     {
         if ($ret = $this->memcached->get($cacheId)) {
             return $ret;
-        }        
+        }
 
         $ret = $callback();
-        
+
         $this->memcached->set($cacheId, $ret, $lifetime);
         return $ret;
     }

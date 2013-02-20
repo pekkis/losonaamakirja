@@ -22,7 +22,7 @@ class Post extends Entity
         ];
     }
 
-    public function setPerson(Person $poster)
+    public function setPoster(Person $poster)
     {
         $this->poster = $poster;
     }

@@ -26,10 +26,10 @@ $app['debug'] = true;
 // Simulated login
 $app['dispatcher']->addListener(KernelEvents::REQUEST, function (KernelEvent $event) use ($app) {
     $app['session']->set('user', array('username' => 'gaylord.lohiposki'));
-    
+
     // $logger = new Doctrine\DBAL\Logging\EchoSQLLogger();
     // $conn->getConfiguration()->setSQLLogger($logger);
-        
+
 });
 
 // Providers
@@ -84,13 +84,13 @@ $app['imageService'] = $app->share(function (Application $app) {
 
 
 $app['postService'] = $app->share(function (Application $app) {
-    
+
     return new PostService(
         $app['db'],
         $app['personService'],
         $app['memcached']
     );
-    
+
 });
 
 $app['companyService'] = $app->share(function (Application $app) {
@@ -109,7 +109,7 @@ $app->get('/api/person', function(Application $app, Request $request) {
     $personService = $app['personService'];
 
     $params = $request->query->all();
-    
+
     /* Great and totally unsafe kludge for like searches :) */
     foreach ($params as $key => $value) {
         if (preg_match('/%/', $value)) {
@@ -153,12 +153,27 @@ $app->get('/api/person/{username}/friend', function(Application $app, Request $r
 });
 
 
-$app->get('/api/post/{personId}', function(Application $app, $personId) {
+$app->get('/api/post/{personId}', function(Application $app, Request $request, $personId) {
 
     /** @var PostService $postService */
     $postService = $app['postService'];
 
-    $posts = $postService->findByPersonId($personId);
+
+    // $posts = $postService->findByPersonId($personId);
+
+    $page = $request->query->get('page', 1);
+    $limit = $request->query->get('limit', 10);
+
+    $posts = $postService->findBy(
+        [
+            'poster_id' => $personId,
+        ],
+        [
+            'orderBy' => ['date_created DESC'],
+            'page' => $page,
+            'limit' => $limit,
+        ]
+    );
 
     return new JsonResponse(
         $posts
@@ -225,6 +240,7 @@ $app->get('/api/company/{name}', function(Application $app, $name) {
 
 });
 
+/*
 $app->register(
     new MonologServiceProvider(),[]
 );
@@ -233,11 +249,11 @@ $app['monolog.handler'] = function () use ($app) {
     return new ChromePHPHandler($app['monolog.level']);
 };
 if ( $app['debug'] ) {
-    
+
     $logger = new Doctrine\DBAL\Logging\DebugStack();
-    
+
     $app['db.config']->setSQLLogger($logger);
-    
+
     $app->after(function(Request $request, Response $response) use ($app, $logger) {
         $queries = array_slice($logger->queries, sizeof($logger->queries) - 100);
         foreach ($queries as $query) {
@@ -245,5 +261,6 @@ if ( $app['debug'] ) {
         }
     });
 }
+*/
 
 return $app;
