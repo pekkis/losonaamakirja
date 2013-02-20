@@ -6,17 +6,13 @@ use Losofacebook\Post;
 use Losofacebook\Comment;
 use Losofacebook\Service\PersonService;
 use DateTime;
+use Memcached;
 
 /**
  * Image service
  */
-class PostService
+class PostService extends AbstractService
 {
-    /**
-     * @var Connection
-     */
-    private $conn;
-
     /**
      * @var PersonService
      */
@@ -25,9 +21,12 @@ class PostService
     /**
      * @param $basePath
      */
-    public function __construct(Connection $conn, PersonService $personService)
-    {
-        $this->conn = $conn;
+    public function __construct(
+        Connection $conn,
+        PersonService $personService,
+        Memcached $memcached
+    ) {
+        parent::__construct($conn, 'post', $memcached);
         $this->personService = $personService;
     }
 
@@ -91,59 +90,33 @@ class PostService
      */
     public function findByPersonId($personId)
     {
-        $data = $this->conn->fetchAll(
-            "SELECT * FROM post WHERE person_id = ? ORDER BY date_created DESC", [$personId]
+        return $this->tryCache(
+            "post_person_{$personId}",
+            function () use ($personId) {
+
+                $data = $this->conn->fetchAll(
+                    "SELECT * FROM post WHERE person_id = ? ORDER BY date_created DESC", [$personId]
+                );
+
+                $posts = [];
+                foreach ($data as $row) {
+
+
+                    $post = Post::create($row);
+                    $post->setPerson($this->personService->findById($row['poster_id'], false));
+                    $post->setComments($this->getComments($row['id']));
+
+                    $posts[] = $post;
+                }
+
+                return $posts;
+                  
+            },
+            null
         );
-
-        $posts = [];
-        foreach ($data as $row) {
-
-
-            $post = Post::create($row);
-            $post->setPerson($this->personService->findById($row['poster_id'], false));
-            $post->setComments($this->getComments($row['id']));
-
-            $posts[] = $post;
-        }
-
-        return $posts;
+        
+        
     }
-
-    public function findFriends($id)
-    {
-        $friends = [];
-        foreach ($this->findFriendIds($id) as $friendId) {
-            $friends[] = $this->findById($friendId, false);
-        }
-        return $friends;
-    }
-
-
-    public function findFriendIds($id)
-    {
-        $myAdded = $this->conn->fetchAll(
-            "SELECT target_id FROM friendship WHERE source_id = ?",
-            [$id]
-        );
-
-        $meAdded = $this->conn->fetchAll(
-            "SELECT source_id FROM friendship WHERE target_id = ?",
-            [$id]
-        );
-
-        $myAdded = array_reduce($myAdded, function ($result, $row) {
-            $result[] = $row['target_id'];
-            return $result;
-        }, []);
-
-        $meAdded = array_reduce($meAdded, function ($result, $row) {
-            $result[] = $row['source_id'];
-            return $result;
-        }, []);
-
-        return array_unique(array_merge($myAdded, $meAdded));
-    }
-
 
     public function getComments($postId)
     {

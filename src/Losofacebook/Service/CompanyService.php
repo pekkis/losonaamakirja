@@ -3,7 +3,7 @@
 namespace Losofacebook\Service;
 use Doctrine\DBAL\Connection;
 use Losofacebook\Company;
-
+use Memcached;
 use Doctrine\DBAL\Query\QueryBuilder;
 
 /**
@@ -12,9 +12,9 @@ use Doctrine\DBAL\Query\QueryBuilder;
 class CompanyService extends AbstractService
 {
 
-    public function __construct(Connection $conn)
+    public function __construct(Connection $conn, Memcached $memcached)
     {
-        parent::__construct($conn, 'company');
+        parent::__construct($conn, 'company', $memcached);
     }
 
     public function findByName($name)

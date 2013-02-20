@@ -16,8 +16,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\KernelEvent;
 use Silex\Provider\SessionServiceProvider;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Memcached;
-
 use Silex\Provider\MonologServiceProvider;
 use Monolog\Handler\ChromePHPHandler;
 use Monolog\Handler\FirePHPHandler;
@@ -76,16 +74,29 @@ $app['personService'] = $app->share(function (Application $app) {
 });
 
 $app['imageService'] = $app->share(function (Application $app) {
-    return new ImageService($app['db'], realpath(__DIR__ . '/data/images'));
+    return new ImageService(
+        $app['db'],
+        realpath(__DIR__ . '/data/images'),
+        $app['memcached']
+    );
 });
 
 
 $app['postService'] = $app->share(function (Application $app) {
-    return new PostService($app['db'], $app['personService']);
+    
+    return new PostService(
+        $app['db'],
+        $app['personService'],
+        $app['memcached']
+    );
+    
 });
 
 $app['companyService'] = $app->share(function (Application $app) {
-    return new CompanyService($app['db']);
+    return new CompanyService(
+        $app['db'],
+        $app['memcached']
+    );
 });
 
 
@@ -227,7 +238,7 @@ if ( $app['debug'] ) {
     $app['db.config']->setSQLLogger($logger);
     
     $app->after(function(Request $request, Response $response) use ($app, $logger) {
-        $queries = array_slice($logger->queries, sizeof($queries) - 100);
+        $queries = array_slice($logger->queries, sizeof($logger->queries) - 100);
         foreach ($queries as $query) {
             $app['monolog']->debug($query['sql']);
         }
