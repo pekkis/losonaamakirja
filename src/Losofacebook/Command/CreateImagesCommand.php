@@ -26,22 +26,20 @@ class CreateImagesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln("Will parse images.");
+        $output->writeln("Will recreate images.");
 
-        $finder = new Finder();
-
-        $finder
-            ->files()
-            ->in($this->getProjectDirectory() . '/app/dev/imaginarium/people');
-
-        $is = $this->getImageService();
-
-        $this->getDb()->exec("DELETE FROM image WHERE type = 1");
-
-        foreach ($finder as $file) {
-            $output->writeln("{$file->getRealpath()}");
-            $is->createImage($file->getRealpath(), Image::TYPE_PERSON);
+        $db = $this->getDb();
+        $imageService = $this->getImageService();
+                
+        $images = $db->fetchAll("SELECT * FROM image WHERE type = 1");
+        
+        foreach ($images as $image) {
+            $imageService->createVersions($image['id']);
+            $output->writeln("Recreating versions for #{$image['id']}");
         }
+               
+        
+        
     }
 
     /**

@@ -85,16 +85,43 @@ class ImageService extends AbstractService
         $thumb->writeImage($this->basePath . '/' . $id . '-thumb');
     }
 
+    protected function getImageVersions()
+    {
+        return [
+            'main' => [
+                126,
+                60
+            ],
+            'mini' => [
+                50,
+                20
+            ],
+            'midi' => [
+                75,
+                40
+            ],
+
+
+        ];
+    }
 
     public function createVersions($id)
     {
+        
         $img = new Imagick($this->basePath . '/' . $id);
-        $thumb = clone $img;
-
-        $thumb->cropThumbnailimage(500, 500);
-        $thumb->setImageCompression(self::COMPRESSION_TYPE);
-        $thumb->setImageCompressionQuality(90);
-        $thumb->writeImage($this->basePath . '/' . $id . '-thumb');
+        
+        foreach ($this->getImageVersions() as $key => $data) {
+            
+            list($size, $cq) = $data;
+            
+            $v = clone $img;
+            $v->cropThumbnailimage($size, $size);
+            $v->setImageCompression(self::COMPRESSION_TYPE);
+            $v->setImageCompressionQuality($cq);
+            $v->writeImage($this->basePath . '/' . $id . '-' . $key);
+            
+        }
+       
     }
 
     public function getImageResponse($id, $version = null)
