@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Losofacebook\Image;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Memcached;
+use DateTime;
 
 /**
  * Image service
@@ -90,15 +91,15 @@ class ImageService extends AbstractService
         return [
             'main' => [
                 126,
-                60
+                75
             ],
             'mini' => [
                 50,
-                20
+                45
             ],
             'midi' => [
                 75,
-                40
+                60
             ],
 
 
@@ -136,9 +137,19 @@ class ImageService extends AbstractService
             throw new NotFoundHttpException('Image not found');
         }
 
+        $content = file_get_contents($path);
+        
         $response = new Response();
-        $response->setContent(file_get_contents($path));
+        $response->setContent($content);
         $response->headers->set('Content-type', 'image/jpeg');
+        
+        $now = new DateTime();
+        $now->modify('+30 days');
+    
+        $response->setPublic(true);
+        $response->setExpires($now);
+        $response->setEtag(md5($content));
+        
         return $response;
     }
 

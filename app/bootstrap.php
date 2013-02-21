@@ -211,12 +211,10 @@ $imageRenderer = function(Application $app, $id, $version = null) {
     /** @var ImageService $imageService */
     $imageService = $app['imageService'];
     $response = $imageService->getImageResponse($id, $version);
+    
     return $response;
 };
-
-// Did not like the original url, so whe changed.
 $app->get('/api/image/{id}/{version}', $imageRenderer)->value('version', null);
-$app->get('/api/image-renderer/{id}/{version}', $imageRenderer)->value('version', null);
 
 $app->get('/api/company', function(Application $app, Request $request) {
 

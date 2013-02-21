@@ -8,7 +8,7 @@
 <ul class="posts">
     <li class="post" ng-repeat="post in posts" >
 
-        <img ng-src="/api/image/{{ post.poster.primaryImageId }}/thumb" />
+        <img ng-src="/api/image/{{ post.poster.primaryImageId }}/midi" />
 
         <div class="author">
             <a ng-href="/person/{{ post.poster.username }}">{{ post.person.firstName }} {{ post.person.lastName }}</a>
@@ -19,7 +19,7 @@
         <ul class="comments">
             <li class="comment" ng-repeat="comment in post.comments">
 
-                <img ng-src="/api/image/{{ comment.poster.primaryImageId }}/thumb" />
+                <img ng-src="/api/image/{{ comment.poster.primaryImageId }}/mini" />
 
                 <div class="author">
                     <a ng-href="/person/{{ comment.poster.username }}">{{ comment.poster.firstName }} {{ comment.poster.lastName }}</a>

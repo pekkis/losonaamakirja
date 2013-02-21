@@ -31,10 +31,16 @@ class CreateImagesCommand extends Command
         $db = $this->getDb();
         $imageService = $this->getImageService();
                 
-        $images = $db->fetchAll("SELECT * FROM image WHERE type = 1");
+        $images = $db->fetchAll("SELECT * FROM image");
         
         foreach ($images as $image) {
-            $imageService->createVersions($image['id']);
+            
+            if ($image['type'] == 1) {
+                $imageService->createVersions($image['id']);
+            } else {
+                $imageService->createCorporateVersions($image['id']);
+            }
+            
             $output->writeln("Recreating versions for #{$image['id']}");
         }
                
