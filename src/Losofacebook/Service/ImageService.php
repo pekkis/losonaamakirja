@@ -68,7 +68,7 @@ class ImageService extends AbstractService
     {
         $img = new Imagick($this->basePath . '/' . $id);
         $img->thumbnailimage(450, 450, true);
-
+                
         $geo = $img->getImageGeometry();
 
         $x = (500 - $geo['width']) / 2;
@@ -79,13 +79,46 @@ class ImageService extends AbstractService
         $image->setImageFormat('jpeg');
         $image->compositeImage($img, $img->getImageCompose(), $x, $y);
 
-        $thumb = clone $image;
-        $thumb->cropThumbnailimage(500, 500);
-        $thumb->setImageCompression(self::COMPRESSION_TYPE);
-        $thumb->setImageCompressionQuality(90);
-        $thumb->writeImage($this->basePath . '/' . $id . '-thumb');
+        foreach ($this->getCorporateImageVersions() as $key => $data) {
+            
+            $versionPath = $this->basePath . '/' . $id . '-' . $key;
+            
+            $v = clone $image;
+            
+            list($size, $cq) = $data;
+            $v->cropThumbnailimage($size, $size);
+            $v->setImageCompression(self::COMPRESSION_TYPE);
+            $v->setImageCompressionQuality($cq);
+            $v->writeImage($this->basePath . '/' . $id . '-' . $key);
+            
+            $linkPath = realpath($this->basePath . '/../../../web/images')
+                    . '/' . $id . '-' . $key . '.jpg';
+                        
+            if (!is_link($linkPath)) {
+                symlink($versionPath, $linkPath);
+            }            
+            
+        }
+        
     }
 
+    
+    protected function getCorporateImageVersions()
+    {
+        return [
+            'main' => [
+                126,
+                75
+            ],
+            'loso' => [
+                306,
+                75
+            ]
+        ];
+    }
+
+    
+    
     protected function getImageVersions()
     {
         return [
@@ -101,6 +134,10 @@ class ImageService extends AbstractService
                 75,
                 60
             ],
+            'loso' => [
+                210,
+                75
+            ]
 
 
         ];
@@ -115,11 +152,22 @@ class ImageService extends AbstractService
             
             list($size, $cq) = $data;
             
+            $versionPath = $this->basePath . '/' . $id . '-' . $key;
+            
             $v = clone $img;
+            $v->stripImage();
             $v->cropThumbnailimage($size, $size);
             $v->setImageCompression(self::COMPRESSION_TYPE);
+            $v->setInterlaceScheme(Imagick::INTERLACE_PLANE);
             $v->setImageCompressionQuality($cq);
-            $v->writeImage($this->basePath . '/' . $id . '-' . $key);
+            $v->writeImage($versionPath);
+            
+            $linkPath = realpath($this->basePath . '/../../../web/images')
+                    . '/' . $id . '-' . $key . '.jpg';
+                        
+            if (!is_link($linkPath)) {
+                symlink($versionPath, $linkPath);
+            }            
             
         }
        
@@ -142,13 +190,16 @@ class ImageService extends AbstractService
         $response = new Response();
         $response->setContent($content);
         $response->headers->set('Content-type', 'image/jpeg');
-        
+    
+        /*
         $now = new DateTime();
         $now->modify('+30 days');
     
         $response->setPublic(true);
         $response->setExpires($now);
         $response->setEtag(md5($content));
+        */
+        
         
         return $response;
     }

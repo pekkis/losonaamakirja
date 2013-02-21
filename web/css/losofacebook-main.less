@@ -1,3 +1,14 @@
+@color: rgba(255, 0, 0, .5);
+
+.rounded-corners (@radius: 5px) {
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  -ms-border-radius: @radius;
+  -o-border-radius: @radius;
+  border-radius: @radius;
+}
+
+
 body * {
     zoom: 1;
 }
@@ -36,8 +47,12 @@ body .navbar .container #losofacebook-logo.brand span#losonaamakirja {
 
 /* Friends */
 
+
 .friends {
 
+  .rounded-corners(20px);
+  background-color: @color;
+  border: 5px;
   max-height: 250px;
   overflow-y: scroll;
 
