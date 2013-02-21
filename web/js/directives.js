@@ -46,7 +46,7 @@ angular.module('losofacebook.directives', [])
 
         return directiveDefinitionObject;
     })
-    .directive('lbWall', function factory(Post, Comment, currentUser) {
+    .directive('lbWall', function factory(Post, Comment, currentUser, $window, $document, $timeout) {
 
         var directiveDefinitionObject = {
 
@@ -120,45 +120,36 @@ angular.module('losofacebook.directives', [])
                         scope.posts = Post.query({ 'person': person.id, 'page': scope.pager.page, 'limit': scope.pager.limit });
                     }
                 }, true);
+                
+                var $win = angular.element($window);
+
+                var readyToScroll = true;
+
+                ($win).bind('scroll', function() {
+
+                    var scroll = $win.scrollTop() + $win.height();
+
+                    if (scroll >= $document.height() * 0.90) {
+                        if (readyToScroll) {
+
+                            // Really elegant solution... haha!
+                            readyToScroll = false;
+                            $timeout(function() { 
+                                readyToScroll = true;
+                            }, 2000, false);
+                            
+                            scope.fetchMore();
+                        }
+                    }
+                });
+
+                
 
             }
         };
 
         return directiveDefinitionObject;
     })
-
-    .directive('whenScrolled', function($window, $document, $timeout) {
-
-
-        return function(scope, elm, attr) {
-
-            var raw = $window;
-            var $win = angular.element($window);
-
-
-            var $doc = angular.element($window.document);
-
-            var readyToScroll = true;
-
-            ($win).bind('scroll', function() {
-
-                var scroll = $win.scrollTop() + $win.height();
-
-                if (scroll >= $document.height() * 0.90) {
-                    if (readyToScroll) {
-
-                        // Really elegant solution... haha!
-                        readyToScroll = false;
-                        $timeout(function() { 
-                            readyToScroll = true;
-                        }, 2000, false);
-                        scope.$apply(attr.whenScrolled);
-                    }
-                }
-            });
-        };
-    })
-
 ;
 
 
