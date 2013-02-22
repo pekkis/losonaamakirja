@@ -16,14 +16,20 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\KernelEvent;
 use Silex\Provider\SessionServiceProvider;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Silex\Provider\MonologServiceProvider;
+use Monolog\Handler\ChromePHPHandler;
+use Monolog\Handler\FirePHPHandler;
 
 $app = new Silex\Application();
-
 $app['debug'] = true;
 
 // Simulated login
 $app['dispatcher']->addListener(KernelEvents::REQUEST, function (KernelEvent $event) use ($app) {
     $app['session']->set('user', array('username' => 'gaylord.lohiposki'));
+
+    // $logger = new Doctrine\DBAL\Logging\EchoSQLLogger();
+    // $conn->getConfiguration()->setSQLLogger($logger);
+
 });
 
 // Providers
@@ -41,7 +47,7 @@ $app->register(new DoctrineServiceProvider(), array(
         'port' => 3306,
         'dbname' => 'losofacebook',
         'user' => 'root',
-        'password' => 'g04753m135',
+        'password' => 'userpassu',
         'charset' => 'utf8',
     ),
 ));
@@ -56,22 +62,42 @@ $app->register(
     ]
 );
 
-// Services
 
-$app['imageService'] = $app->share(function (Application $app) {
-    return new ImageService($app['db'], realpath(__DIR__ . '/data/images'));
+$app['memcached'] = $app->share(function (Application $app) {
+    $m = new Memcached();
+    $m->addServer('localhost', 11211);
+    // $m->setOption(Memcached::OPT_COMPRESSION, false);
+    return $m;
 });
 
 $app['personService'] = $app->share(function (Application $app) {
-    return new PersonService($app['db']);
+    return new PersonService($app['db'], $app['memcached']);
 });
 
+$app['imageService'] = $app->share(function (Application $app) {
+    return new ImageService(
+        $app['db'],
+        realpath(__DIR__ . '/data/images'),
+        $app['memcached']
+    );
+});
+
+
 $app['postService'] = $app->share(function (Application $app) {
-    return new PostService($app['db'], $app['personService']);
+
+    return new PostService(
+        $app['db'],
+        $app['personService'],
+        $app['memcached']
+    );
+
 });
 
 $app['companyService'] = $app->share(function (Application $app) {
-    return new CompanyService($app['db']);
+    return new CompanyService(
+        $app['db'],
+        $app['memcached']
+    );
 });
 
 
@@ -92,8 +118,7 @@ $app->get('/api/person', function(Application $app, Request $request) {
             };
         }
     }
-
-    $persons = $personService->findBy($params, false);
+    $persons = $personService->findBy($params,  [], false);
 
     return new JsonResponse(
         $persons
@@ -128,12 +153,27 @@ $app->get('/api/person/{username}/friend', function(Application $app, Request $r
 });
 
 
-$app->get('/api/post/{personId}', function(Application $app, $personId) {
+$app->get('/api/post/{personId}', function(Application $app, Request $request, $personId) {
 
     /** @var PostService $postService */
     $postService = $app['postService'];
 
-    $posts = $postService->findByPersonId($personId);
+
+    // $posts = $postService->findByPersonId($personId);
+
+    $page = $request->query->get('page', 1);
+    $limit = $request->query->get('limit', 10);
+
+    $posts = $postService->findBy(
+        [
+            'poster_id' => $personId,
+        ],
+        [
+            'orderBy' => ['date_created DESC'],
+            'page' => $page,
+            'limit' => $limit,
+        ]
+    );
 
     return new JsonResponse(
         $posts
@@ -171,12 +211,10 @@ $imageRenderer = function(Application $app, $id, $version = null) {
     /** @var ImageService $imageService */
     $imageService = $app['imageService'];
     $response = $imageService->getImageResponse($id, $version);
+    
     return $response;
 };
-
-// Did not like the original url, so whe changed.
 $app->get('/api/image/{id}/{version}', $imageRenderer)->value('version', null);
-$app->get('/api/image-renderer/{id}/{version}', $imageRenderer)->value('version', null);
 
 $app->get('/api/company', function(Application $app, Request $request) {
 
@@ -200,7 +238,27 @@ $app->get('/api/company/{name}', function(Application $app, $name) {
 
 });
 
+/*
+$app->register(
+    new MonologServiceProvider(),[]
+);
 
+$app['monolog.handler'] = function () use ($app) {
+    return new ChromePHPHandler($app['monolog.level']);
+};
+if ( $app['debug'] ) {
 
+    $logger = new Doctrine\DBAL\Logging\DebugStack();
+
+    $app['db.config']->setSQLLogger($logger);
+
+    $app->after(function(Request $request, Response $response) use ($app, $logger) {
+        $queries = array_slice($logger->queries, sizeof($logger->queries) - 100);
+        foreach ($queries as $query) {
+            $app['monolog']->debug($query['sql']);
+        }
+    });
+}
+*/
 
 return $app;

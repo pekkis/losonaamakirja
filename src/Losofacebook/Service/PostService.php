@@ -6,17 +6,13 @@ use Losofacebook\Post;
 use Losofacebook\Comment;
 use Losofacebook\Service\PersonService;
 use DateTime;
+use Memcached;
 
 /**
  * Image service
  */
-class PostService
+class PostService extends AbstractService
 {
-    /**
-     * @var Connection
-     */
-    private $conn;
-
     /**
      * @var PersonService
      */
@@ -25,9 +21,12 @@ class PostService
     /**
      * @param $basePath
      */
-    public function __construct(Connection $conn, PersonService $personService)
-    {
-        $this->conn = $conn;
+    public function __construct(
+        Connection $conn,
+        PersonService $personService,
+        Memcached $memcached
+    ) {
+        parent::__construct($conn, 'post', $memcached);
         $this->personService = $personService;
     }
 
@@ -38,6 +37,9 @@ class PostService
      */
     public function create($personId, $data)
     {
+        $cacheId = "post_person_{$personId}";
+        $this->memcached->delete($cacheId);
+
         $data = [
             'person_id' => $personId,
             'poster_id' => $data->poster->id,
@@ -49,7 +51,7 @@ class PostService
         $data['id'] = $this->conn->lastInsertId();
 
         $post = Post::create($data);
-        $post->setPerson($this->personService->findById($data['poster_id'], false));
+        $post->setPoster($this->personService->findById($data['poster_id'], false));
         return $post;
     }
 
@@ -62,12 +64,30 @@ class PostService
     {
         try {
 
-        $data = [
-            'post_id' => $postId,
-            'poster_id' => $data->poster->id,
-            'date_created' => (new DateTime())->format('Y-m-d H:i:s'),
-            'content' => $data->content,
-        ];
+
+             $post = $this->findByParams(
+                 [
+                     'id' => $postId
+                 ],
+                 [],
+                 function ($data) {
+                    return Post::create($data);
+                 }
+            )->current();
+
+            if (!$post) {
+                throw new \IllegalArgumentException("Invalid post");
+            }
+
+            $cacheId = "post_person_{$post->getPersonId()}";
+            $this->memcached->delete($cacheId);
+
+            $data = [
+                'post_id' => $postId,
+                'poster_id' => $data->poster->id,
+                'date_created' => (new DateTime())->format('Y-m-d H:i:s'),
+                'content' => $data->content,
+            ];
             $this->conn->insert('comment', $data);
 
             $data['id'] = $this->conn->lastInsertId();
@@ -91,59 +111,29 @@ class PostService
      */
     public function findByPersonId($personId)
     {
-        $data = $this->conn->fetchAll(
-            "SELECT * FROM post WHERE person_id = ? ORDER BY date_created DESC", [$personId]
+        return $this->tryCache(
+            "post_person_{$personId}",
+            function () use ($personId) {
+
+                $data = $this->conn->fetchAll(
+                    "SELECT * FROM post WHERE person_id = ? ORDER BY date_created DESC", [$personId]
+                );
+
+                $posts = [];
+                foreach ($data as $row) {
+
+                    $post = $this->createPost($row);
+                    $posts[] = $post;
+                }
+
+                return $posts;
+
+            },
+            null
         );
 
-        $posts = [];
-        foreach ($data as $row) {
 
-
-            $post = Post::create($row);
-            $post->setPerson($this->personService->findById($row['poster_id'], false));
-            $post->setComments($this->getComments($row['id']));
-
-            $posts[] = $post;
-        }
-
-        return $posts;
     }
-
-    public function findFriends($id)
-    {
-        $friends = [];
-        foreach ($this->findFriendIds($id) as $friendId) {
-            $friends[] = $this->findById($friendId, false);
-        }
-        return $friends;
-    }
-
-
-    public function findFriendIds($id)
-    {
-        $myAdded = $this->conn->fetchAll(
-            "SELECT target_id FROM friendship WHERE source_id = ?",
-            [$id]
-        );
-
-        $meAdded = $this->conn->fetchAll(
-            "SELECT source_id FROM friendship WHERE target_id = ?",
-            [$id]
-        );
-
-        $myAdded = array_reduce($myAdded, function ($result, $row) {
-            $result[] = $row['target_id'];
-            return $result;
-        }, []);
-
-        $meAdded = array_reduce($meAdded, function ($result, $row) {
-            $result[] = $row['source_id'];
-            return $result;
-        }, []);
-
-        return array_unique(array_merge($myAdded, $meAdded));
-    }
-
 
     public function getComments($postId)
     {
@@ -158,5 +148,25 @@ class PostService
             $comments[] = $comment;
         }
         return $comments;
+    }
+
+
+    /**
+     * @param array $params
+     */
+    public function findBy(array $params = [], $options = [])
+    {
+        return parent::findByParams($params, $options, function ($data) {
+            return $this->createPost($data);
+        });
+    }
+
+    protected function createPost($data)
+    {
+        $post = Post::create($data);
+        $post->setPoster($this->personService->findById($data['poster_id'], false));
+        $post->setComments($this->getComments($data['id']));
+
+        return $post;
     }
 }

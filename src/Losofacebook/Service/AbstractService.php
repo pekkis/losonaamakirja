@@ -4,6 +4,7 @@ namespace Losofacebook\Service;
 
 use Doctrine\DBAL\Connection;
 use ArrayIterator;
+use Memcached;
 
 abstract class AbstractService
 {
@@ -13,12 +14,27 @@ abstract class AbstractService
      */
     protected $conn;
 
+    /**
+     * @var string
+     */
     private $tableName;
 
-    public function __construct(Connection $conn, $tableName)
+    /**
+     * @var Memcached
+     */
+    protected $memcached;
+
+    /**
+     *
+     * @param Connection $conn
+     * @param type $tableName
+     * @param Memcached $memcached
+     */
+    public function __construct(Connection $conn, $tableName, Memcached $memcached)
     {
         $this->conn = $conn;
         $this->tableName = $tableName;
+        $this->memcached = $memcached;
     }
 
     /**
@@ -82,6 +98,19 @@ abstract class AbstractService
 
         return new ArrayIterator($raw);
 
+    }
+
+
+    protected function tryCache($cacheId,callable $callback, $lifetime = null)
+    {
+        if ($ret = $this->memcached->get($cacheId)) {
+            return $ret;
+        }
+
+        $ret = $callback();
+
+        $this->memcached->set($cacheId, $ret, $lifetime);
+        return $ret;
     }
 
 

@@ -21,7 +21,7 @@
         <li class="span3" ng-repeat="person in persons | orderBy:['lastName', 'firstName']">
 
             <div class="thumbnail">
-                <img alt="{{ person.firstName }} {{ person.lastName }}" style="width: 260px; height: 260px;" src="/api/image/{{ person.primaryImageId }}/thumb">
+                <img alt="{{ person.firstName }} {{ person.lastName }}" style="width: 210px; height: 210px;" ng-src="/images/{{ person.primaryImageId }}-loso.jpg">
                 <div class="caption">
                     <h3>{{ person.firstName }} {{ person.lastName }}</h3>
                     <p>About the person</p>

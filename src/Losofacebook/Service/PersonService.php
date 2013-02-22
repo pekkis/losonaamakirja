@@ -4,6 +4,7 @@ namespace Losofacebook\Service;
 use Doctrine\DBAL\Connection;
 use Losofacebook\Person;
 use DateTime;
+use Memcached;
 
 use Doctrine\DBAL\Query\QueryBuilder;
 
@@ -12,10 +13,10 @@ use Doctrine\DBAL\Query\QueryBuilder;
  */
 class PersonService extends AbstractService
 {
-
-    public function __construct(Connection $conn)
+    
+    public function __construct(Connection $conn, Memcached $memcached)
     {
-        parent::__construct($conn, 'person');
+        parent::__construct($conn, 'person', $memcached);
     }
 
 
@@ -26,12 +27,24 @@ class PersonService extends AbstractService
      */
     public function findByUsername($username, $findFriends = true)
     {
-        return $this->findBy(['username' => $username], [], $findFriends)->current();
+        return $this->tryCache(
+            "person_username_{$username}",
+            function () use ($username, $findFriends) {
+                return $this->findBy(['username' => $username], [], $findFriends)->current();
+            },
+            600
+        );
     }
 
     public function findById($id, $findFriends = true)
     {
-        return $this->findBy(['id' => $id], [], $findFriends)->current();
+        return $this->tryCache(
+            "person_id_{$id}",
+            function () use ($id, $findFriends) {
+                return $this->findBy(['id' => $id], [], $findFriends)->current();
+            },
+            600
+        );
     }
 
     /**
@@ -46,11 +59,20 @@ class PersonService extends AbstractService
 
     public function findFriends($id)
     {
-        $friends = [];
+        return $this->findBy(
+            [
+                'id' => $this->findFriendIds($id),
+            ],
+            [],
+            false
+        );
+                
+        /*
         foreach ($this->findFriendIds($id) as $friendId) {
             $friends[] = $this->findById($friendId, false);
         }
         return $friends;
+        */
     }
 
     /**
@@ -74,30 +96,39 @@ class PersonService extends AbstractService
         return $this->findBy($params, ['orderBy' => ['last_name ASC', 'first_name ASC']], false);
     }
 
-
+    /**
+     * @param int $id
+     * @return array
+     */
     public function findFriendIds($id)
     {
-        $myAdded = $this->conn->fetchAll(
-            "SELECT target_id FROM friendship WHERE source_id = ?",
-            [$id]
-        );
+        $cacheId = "friend_ids_{$id}";
+        return $this->tryCache($cacheId, function() use ($id) {
 
-        $meAdded = $this->conn->fetchAll(
-            "SELECT source_id FROM friendship WHERE target_id = ?",
-            [$id]
-        );
+            $myAdded = $this->conn->fetchAll(
+                "SELECT target_id FROM friendship WHERE source_id = ?",
+                [$id]
+            );
 
-        $myAdded = array_reduce($myAdded, function ($result, $row) {
-            $result[] = $row['target_id'];
-            return $result;
-        }, []);
+            $meAdded = $this->conn->fetchAll(
+                "SELECT source_id FROM friendship WHERE target_id = ?",
+                [$id]
+            );
 
-        $meAdded = array_reduce($meAdded, function ($result, $row) {
-            $result[] = $row['source_id'];
-            return $result;
-        }, []);
+            $myAdded = array_reduce($myAdded, function ($result, $row) {
+                $result[] = $row['target_id'];
+                return $result;
+            }, []);
 
-        return array_unique(array_merge($myAdded, $meAdded));
+            $meAdded = array_reduce($meAdded, function ($result, $row) {
+                $result[] = $row['source_id'];
+                return $result;
+            }, []);
+
+            $ret = array_unique(array_merge($myAdded, $meAdded));
+            return $ret;
+            
+        }, 600);
     }
 
     /**
