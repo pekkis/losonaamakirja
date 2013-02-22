@@ -84,10 +84,12 @@ class ImageService extends AbstractService
             $versionPath = $this->basePath . '/' . $id . '-' . $key;
             
             $v = clone $image;
+            $v->stripImage();
             
             list($size, $cq) = $data;
             $v->cropThumbnailimage($size, $size);
             $v->setImageCompression(self::COMPRESSION_TYPE);
+            $v->setInterlaceScheme(Imagick::INTERLACE_PLANE);
             $v->setImageCompressionQuality($cq);
             $v->writeImage($this->basePath . '/' . $id . '-' . $key);
             
