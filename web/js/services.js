@@ -27,5 +27,14 @@ angular.module('losofacebook.services', ['ngResource'])
     .factory('Friend', function($resource){
         return $resource('/api/person/:username/friend', {}, {
         });
-    });
+    })
+    .factory('Urlirizer', function() {
+        return { 
+            create: function(id, version) {
+                return '/images/' + id + '-' + version + '.jpg';
+            }
+        }
+    })
+    
+    ;
 

@@ -2,6 +2,9 @@
 
 namespace Losofacebook;
 
+use ArrayIterator;
+use DateTime;
+
 class Person extends Entity
 {
 
@@ -80,7 +83,7 @@ class Person extends Entity
     /**
      * @param array $friends
      */
-    public function setFriends(array $friends)
+    public function setFriends(ArrayIterator $friends)
     {
         $this->friends = $friends;
     }
@@ -108,7 +111,10 @@ class Person extends Entity
 
     public function getBirthday()
     {
-        return $this->data['birthday'];
+        $dt = new DateTime($this->data['birthday']);
+        return $dt->format(DATE_RFC822);
+        
+        // return $this->data['birthday'];
     }
 
 }

@@ -22,7 +22,7 @@ class Post extends Entity
         ];
     }
 
-    public function setPerson(Person $poster)
+    public function setPoster(Person $poster)
     {
         $this->poster = $poster;
     }
@@ -59,7 +59,7 @@ class Post extends Entity
 
     public function getPersonId()
     {
-        return $this->data['personId'];
+        return $this->data['person_id'];
     }
 
 

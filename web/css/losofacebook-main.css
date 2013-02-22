@@ -1,6 +1,3 @@
-@import url('losofacebook-friends.css');
-@import url('losofacebook-posts.css');
-
 body * {
   zoom: 1;
 }
@@ -29,4 +26,66 @@ body .navbar .container #losofacebook-logo.brand span#losonaamakirja {
   width: 90%;
   border: 4px solid white;
 }
-
+/* Friends */
+.friends {
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  -ms-border-radius: 20px;
+  -o-border-radius: 20px;
+  border-radius: 20px;
+  background-color: rgba(255, 0, 0, 0.5);
+  border: 5px;
+  max-height: 250px;
+  overflow-y: scroll;
+}
+.friends > ul {
+  display: block;
+  margin: 0;
+}
+.friends > ul > li {
+  list-style-type: none;
+  margin: 0;
+  padding: 0.2em 0;
+}
+.friends img {
+  width: 50px;
+  height: 50px;
+  vertical-align: middle;
+}
+/* Posts */
+#wall textarea {
+  width: 100%;
+}
+#wall ul {
+  display: block;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+#wall ul ul {
+  font-size: smaller;
+  margin-left: 85px;
+}
+#wall ul ul li {
+  margin: 15px 0;
+  padding-top: 15px;
+  border-top: 1px solid #999;
+}
+#wall ul ul li.comment img {
+  float: left;
+  width: 50px;
+}
+#wall ul ul li > div {
+  margin-left: 60px;
+}
+#wall li.post img {
+  float: left;
+  width: 75px;
+}
+#wall li.post > div {
+  padding-left: 85px;
+}
+img.mini {
+  width: 20px;
+  height: 20px;
+}

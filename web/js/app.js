@@ -34,7 +34,7 @@ angular
     .run(function($cookies, $browser, user, currentUser, $rootScope) {
         $cookies.user = user;
 
-        console.debug(currentUser);
+        //console.debug(currentUser);
 
         $rootScope.currentUser = currentUser;
     }

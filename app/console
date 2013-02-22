@@ -12,6 +12,7 @@ use Losofacebook\Command\CreatePostCommand;
 use Losofacebook\Command\CreateGaylordLohiposkiCommand;
 use Losofacebook\Command\CreateCompaniesCommand;
 use Losofacebook\Command\CreateCorporateImagesCommand;
+use Losofacebook\Command\AssetizeCommand;
 
 $app = require_once __DIR__.'/bootstrap.php';
 
@@ -25,6 +26,7 @@ $app['dispatcher']->addListener(ConsoleEvents::INIT, function(ConsoleEvent $even
     $app->add(new CreateGaylordLohiposkiCommand());
     $app->add(new CreateCompaniesCommand());
     $app->add(new CreateCorporateImagesCommand());
+    $app->add(new AssetizeCommand());
 });
 
 $application = $app['console'];

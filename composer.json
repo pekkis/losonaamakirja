@@ -10,8 +10,10 @@
         "silex/silex": "1.0.*@dev",
         "knplabs/console-service-provider": "dev-master@dev",
         "keboola/csv": "dev-master",
-        "symfony/finder": "2.1.*"
+        "symfony/finder": "2.1.*",
+        "monolog/monolog": "@stable",
+        "kriswallsmith/assetic": "@stable"
     },
     "minimum-stability": "stable"
-
+    
 }

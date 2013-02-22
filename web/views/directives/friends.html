@@ -2,7 +2,7 @@
 
     <ul>
         <li ng-repeat="friend in friends | orderBy:['lastName', 'firstName']">
-            <img class="friend-image" ng-src="/api/image-renderer/{{ friend.primaryImageId }}/thumb">
+            <img class="friend-image" ng-src="/api/image/{{ friend.primaryImageId }}/mini">
             <a ng-href="/person/{{ friend.username }}">{{ friend.firstName }} {{ friend.lastName }}</a>
 
             {{ person.birthDay }}
