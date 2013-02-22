@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Losofacebook\Service\AsseticService;
+use Assetic\Asset\GlobAsset;
 
 class AssetizeCommand extends Command
 {
@@ -15,11 +16,13 @@ class AssetizeCommand extends Command
     {
         $this
             ->setName('deploy:assetize')
+            ->addArgument('version', InputArgument::REQUIRED)
             ->setDescription('Assetizes assets');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $version = $input->getArgument('version');
         $projectDir = realpath($this->getProjectDirectory());
         
         $options = array(
@@ -31,29 +34,39 @@ class AssetizeCommand extends Command
             'jpegOptimPath' => '/usr/bin/jpegoptim',
 
             'collections' => array(
+                
                 'essentialjs' => array(
                     'write' => array('combined' => true, 'leaves' => false),
                     'cache' => false,
                     'options' => array(
                         'debug' => false,
                         'name' => 'essential',
-                        'output' => 'assets/*',
+                        'output' => "assets/{$version}/*",
                     ),
                     'filters' => '?closure',
-                    'inputs' => array(
 
+                    'inputs' => array(
+                        $projectDir . '/web/js/app.js',
+                        $projectDir . '/web/js/controllers.js',
+                        $projectDir . '/web/js/directives.js',
+                        $projectDir . '/web/js/services.js',
+                        $projectDir . '/web/js/filters.js',
                     )
                 ),
+                                
                 'css' => array(
                     'write' => array('combined' => true, 'leaves' => false),
                     'cache' => false,
                     'options' => array(
                         'debug' => false,
                         'name' => 'common',
-                        'output' => 'assets/*',
+                        'output' => "assets/{$version}/*.css",
                     ),
                     'filters' => 'less',
                     'inputs' => array(
+                        $projectDir . '/web/css/bootstrap.css',
+                        $projectDir . '/web/css/bootstrap-responsive.css',
+                        $projectDir . '/web/css/losofacebook-main.less',
                     )
                 )
 

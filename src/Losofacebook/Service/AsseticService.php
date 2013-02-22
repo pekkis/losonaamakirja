@@ -12,6 +12,7 @@ use Assetic\Filter\OptiPngFilter;
 use Assetic\Filter\JpegoptimFilter;
 use Assetic\Cache\FilesystemCache;
 use Assetic\Filter\GoogleClosure\CompilerJarFilter;
+use Assetic\Filter\GoogleClosure\BaseCompilerFilter;
 use Assetic\Factory\AssetFactory;
 use Assetic\Asset\FileAsset;
 use Assetic\AssetWriter;
@@ -47,7 +48,7 @@ class AsseticService
     public function getAssetCache()
     {
         if(!$this->assetCache) {
-            $this->assetCache = new FilesystemCache($this->projectDir . '/app/data/cache'));
+            $this->assetCache = new FilesystemCache($this->projectDir . '/app/data/cache');
         }
         return $this->assetCache;
     }
@@ -84,7 +85,10 @@ class AsseticService
 
             $this->filterManager->set('less', $lessFilter);
 
-            $this->filterManager->set('closure', new CompilerJarFilter($options['closureCompilerPath'], $options['javaPath']));
+            $compilerFilter = new CompilerJarFilter($options['closureCompilerPath'], $options['javaPath']);
+            $compilerFilter->setCompilationLevel(BaseCompilerFilter::COMPILE_WHITESPACE_ONLY);
+                        
+            $this->filterManager->set('closure', $compilerFilter);
 
             $jpegOptimFilter = new JpegoptimFilter($options['jpegOptimPath']);
             $jpegOptimFilter->setStripAll(true);
@@ -255,7 +259,7 @@ class AsseticService
 
         $am = $this->getAssetManager();
 
-        $writer = new AssetWriter(APPLICATION_PATH . '/public');
+        $writer = new AssetWriter($this->projectDir . '/web');
 
         foreach ($fassets as $fasset) {
 
