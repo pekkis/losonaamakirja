@@ -16,17 +16,8 @@ function IndexCtrl($scope, Person) {
          $scope.results = Person.query(user);
 
     };
-
-    /*
-    $scope.recommendation = '';
-
-    $scope.change = function() {
-
-        $location.path("/recommends/" + this.recommendation);
-
-    };
-    */
 }
+IndexCtrl.$inject = ['$scope', 'Person'];
 
 function PersonCtrl($scope, $routeParams, Person, Post, Friend, Urlirizer) {
 
@@ -46,15 +37,15 @@ function PersonCtrl($scope, $routeParams, Person, Post, Friend, Urlirizer) {
     });
 
 }
+PersonCtrl.$inject = ['$scope', '$routeParams', 'Person', 'Post', 'Friend', 'Urlirizer'];
+
 
 function CompaniesCtrl($scope, Company, Urlirizer) {
     $scope.companies = Company.query({'orderBy': 'name ASC'}, function(companies) {});
-
-
 }
+CompaniesCtrl.$inject = ['$scope', 'Company', 'Urlirizer'];
 
 function CompanyCtrl($scope, $routeParams, Company, Person, Urlirizer) {
-
     
     $scope.create = Urlirizer.create;
     console.debug($scope.create);
@@ -68,3 +59,4 @@ function CompanyCtrl($scope, $routeParams, Company, Person, Urlirizer) {
 
     });
 }
+CompanyCtrl.$inject = ['$scope', '$routeParams', 'Company', 'Person', 'Urlirizer'];

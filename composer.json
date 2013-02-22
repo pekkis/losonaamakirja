@@ -11,7 +11,8 @@
         "knplabs/console-service-provider": "dev-master@dev",
         "keboola/csv": "dev-master",
         "symfony/finder": "2.1.*",
-        "monolog/monolog": "@stable"
+        "monolog/monolog": "@stable",
+        "kriswallsmith/assetic": "@stable"
     },
     "minimum-stability": "stable"
     
